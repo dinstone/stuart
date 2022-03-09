@@ -188,4 +188,260 @@ public class MqttMetrics implements Serializable {
         return instance;
     }
 
+    public LongAdder getPacketConnect() {
+        return packetConnect;
+    }
+
+    public void setPacketConnect(LongAdder packetConnect) {
+        this.packetConnect = packetConnect;
+    }
+
+    public LongAdder getPacketConnack() {
+        return packetConnack;
+    }
+
+    public void setPacketConnack(LongAdder packetConnack) {
+        this.packetConnack = packetConnack;
+    }
+
+    public LongAdder getPacketDisconnect() {
+        return packetDisconnect;
+    }
+
+    public void setPacketDisconnect(LongAdder packetDisconnect) {
+        this.packetDisconnect = packetDisconnect;
+    }
+
+    public LongAdder getPacketPingreq() {
+        return packetPingreq;
+    }
+
+    public void setPacketPingreq(LongAdder packetPingreq) {
+        this.packetPingreq = packetPingreq;
+    }
+
+    public LongAdder getPacketPingresp() {
+        return packetPingresp;
+    }
+
+    public void setPacketPingresp(LongAdder packetPingresp) {
+        this.packetPingresp = packetPingresp;
+    }
+
+    public LongAdder getPacketPublishReceived() {
+        return packetPublishReceived;
+    }
+
+    public void setPacketPublishReceived(LongAdder packetPublishReceived) {
+        this.packetPublishReceived = packetPublishReceived;
+    }
+
+    public LongAdder getPacketPublishSent() {
+        return packetPublishSent;
+    }
+
+    public void setPacketPublishSent(LongAdder packetPublishSent) {
+        this.packetPublishSent = packetPublishSent;
+    }
+
+    public LongAdder getPacketPubackReceived() {
+        return packetPubackReceived;
+    }
+
+    public void setPacketPubackReceived(LongAdder packetPubackReceived) {
+        this.packetPubackReceived = packetPubackReceived;
+    }
+
+    public LongAdder getPacketPubackSent() {
+        return packetPubackSent;
+    }
+
+    public void setPacketPubackSent(LongAdder packetPubackSent) {
+        this.packetPubackSent = packetPubackSent;
+    }
+
+    public LongAdder getPacketPubackMissed() {
+        return packetPubackMissed;
+    }
+
+    public void setPacketPubackMissed(LongAdder packetPubackMissed) {
+        this.packetPubackMissed = packetPubackMissed;
+    }
+
+    public LongAdder getPacketPubcompReceived() {
+        return packetPubcompReceived;
+    }
+
+    public void setPacketPubcompReceived(LongAdder packetPubcompReceived) {
+        this.packetPubcompReceived = packetPubcompReceived;
+    }
+
+    public LongAdder getPacketPubcompSent() {
+        return packetPubcompSent;
+    }
+
+    public void setPacketPubcompSent(LongAdder packetPubcompSent) {
+        this.packetPubcompSent = packetPubcompSent;
+    }
+
+    public LongAdder getPacketPubcompMissed() {
+        return packetPubcompMissed;
+    }
+
+    public void setPacketPubcompMissed(LongAdder packetPubcompMissed) {
+        this.packetPubcompMissed = packetPubcompMissed;
+    }
+
+    public LongAdder getPacketPubrecReceived() {
+        return packetPubrecReceived;
+    }
+
+    public void setPacketPubrecReceived(LongAdder packetPubrecReceived) {
+        this.packetPubrecReceived = packetPubrecReceived;
+    }
+
+    public LongAdder getPacketPubrecSent() {
+        return packetPubrecSent;
+    }
+
+    public void setPacketPubrecSent(LongAdder packetPubrecSent) {
+        this.packetPubrecSent = packetPubrecSent;
+    }
+
+    public LongAdder getPacketPubrecMissed() {
+        return packetPubrecMissed;
+    }
+
+    public void setPacketPubrecMissed(LongAdder packetPubrecMissed) {
+        this.packetPubrecMissed = packetPubrecMissed;
+    }
+
+    public LongAdder getPacketPubrelReceived() {
+        return packetPubrelReceived;
+    }
+
+    public void setPacketPubrelReceived(LongAdder packetPubrelReceived) {
+        this.packetPubrelReceived = packetPubrelReceived;
+    }
+
+    public LongAdder getPacketPubrelSent() {
+        return packetPubrelSent;
+    }
+
+    public void setPacketPubrelSent(LongAdder packetPubrelSent) {
+        this.packetPubrelSent = packetPubrelSent;
+    }
+
+    public LongAdder getPacketPubrelMissed() {
+        return packetPubrelMissed;
+    }
+
+    public void setPacketPubrelMissed(LongAdder packetPubrelMissed) {
+        this.packetPubrelMissed = packetPubrelMissed;
+    }
+
+    public LongAdder getPacketSubscribe() {
+        return packetSubscribe;
+    }
+
+    public void setPacketSubscribe(LongAdder packetSubscribe) {
+        this.packetSubscribe = packetSubscribe;
+    }
+
+    public LongAdder getPacketSuback() {
+        return packetSuback;
+    }
+
+    public void setPacketSuback(LongAdder packetSuback) {
+        this.packetSuback = packetSuback;
+    }
+
+    public LongAdder getPacketUnsubscribe() {
+        return packetUnsubscribe;
+    }
+
+    public void setPacketUnsubscribe(LongAdder packetUnsubscribe) {
+        this.packetUnsubscribe = packetUnsubscribe;
+    }
+
+    public LongAdder getPacketUnsuback() {
+        return packetUnsuback;
+    }
+
+    public void setPacketUnsuback(LongAdder packetUnsuback) {
+        this.packetUnsuback = packetUnsuback;
+    }
+
+    public LongAdder getMessageDropped() {
+        return messageDropped;
+    }
+
+    public void setMessageDropped(LongAdder messageDropped) {
+        this.messageDropped = messageDropped;
+    }
+
+    public LongAdder getMessageQos0Received() {
+        return messageQos0Received;
+    }
+
+    public void setMessageQos0Received(LongAdder messageQos0Received) {
+        this.messageQos0Received = messageQos0Received;
+    }
+
+    public LongAdder getMessageQos0Sent() {
+        return messageQos0Sent;
+    }
+
+    public void setMessageQos0Sent(LongAdder messageQos0Sent) {
+        this.messageQos0Sent = messageQos0Sent;
+    }
+
+    public LongAdder getMessageQos1Received() {
+        return messageQos1Received;
+    }
+
+    public void setMessageQos1Received(LongAdder messageQos1Received) {
+        this.messageQos1Received = messageQos1Received;
+    }
+
+    public LongAdder getMessageQos1Sent() {
+        return messageQos1Sent;
+    }
+
+    public void setMessageQos1Sent(LongAdder messageQos1Sent) {
+        this.messageQos1Sent = messageQos1Sent;
+    }
+
+    public LongAdder getMessageQos2Received() {
+        return messageQos2Received;
+    }
+
+    public void setMessageQos2Received(LongAdder messageQos2Received) {
+        this.messageQos2Received = messageQos2Received;
+    }
+
+    public LongAdder getMessageQos2Sent() {
+        return messageQos2Sent;
+    }
+
+    public void setMessageQos2Sent(LongAdder messageQos2Sent) {
+        this.messageQos2Sent = messageQos2Sent;
+    }
+
+    public LongAdder getByteReceived() {
+        return byteReceived;
+    }
+
+    public void setByteReceived(LongAdder byteReceived) {
+        this.byteReceived = byteReceived;
+    }
+
+    public LongAdder getByteSent() {
+        return byteSent;
+    }
+
+    public void setByteSent(LongAdder byteSent) {
+        this.byteSent = byteSent;
+    }
+
 }

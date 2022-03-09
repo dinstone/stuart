@@ -35,6 +35,22 @@ public class MqttTrieKey implements Serializable {
         // do nothing...
     }
 
+    public String getParent() {
+        return parent;
+    }
+
+    public void setParent(String parent) {
+        this.parent = parent;
+    }
+
+    public String getWord() {
+        return word;
+    }
+
+    public void setWord(String word) {
+        this.word = word;
+    }
+
     public MqttTrieKey(String parent, String word) {
         this.parent = parent;
         this.word = word;

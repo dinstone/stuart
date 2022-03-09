@@ -35,6 +35,22 @@ public class MqttMessageKey implements Serializable {
         // do nothing...
     }
 
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public int getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(int messageId) {
+        this.messageId = messageId;
+    }
+
     public MqttMessageKey(String clientId, int messageId) {
         this.clientId = clientId;
         this.messageId = messageId;

@@ -76,4 +76,68 @@ public class NodeMetrics implements Serializable {
         return instance;
     }
 
+    public LongAdder getConnCount() {
+        return connCount;
+    }
+
+    public void setConnCount(LongAdder connCount) {
+        this.connCount = connCount;
+    }
+
+    public LongAdder getConnMax() {
+        return connMax;
+    }
+
+    public void setConnMax(LongAdder connMax) {
+        this.connMax = connMax;
+    }
+
+    public LongAdder getTopicCount() {
+        return topicCount;
+    }
+
+    public void setTopicCount(LongAdder topicCount) {
+        this.topicCount = topicCount;
+    }
+
+    public LongAdder getTopicMax() {
+        return topicMax;
+    }
+
+    public void setTopicMax(LongAdder topicMax) {
+        this.topicMax = topicMax;
+    }
+
+    public LongAdder getSessCount() {
+        return sessCount;
+    }
+
+    public void setSessCount(LongAdder sessCount) {
+        this.sessCount = sessCount;
+    }
+
+    public LongAdder getSessMax() {
+        return sessMax;
+    }
+
+    public void setSessMax(LongAdder sessMax) {
+        this.sessMax = sessMax;
+    }
+
+    public LongAdder getSubCount() {
+        return subCount;
+    }
+
+    public void setSubCount(LongAdder subCount) {
+        this.subCount = subCount;
+    }
+
+    public LongAdder getSubMax() {
+        return subMax;
+    }
+
+    public void setSubMax(LongAdder subMax) {
+        this.subMax = subMax;
+    }
+
 }

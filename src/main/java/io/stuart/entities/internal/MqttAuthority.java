@@ -37,4 +37,46 @@ public class MqttAuthority implements Serializable {
 
     private Authority authority;
 
+    
+    public String getTopic() {
+        return topic;
+    }
+
+    
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    
+    public int getQos() {
+        return qos;
+    }
+
+    
+    public void setQos(int qos) {
+        this.qos = qos;
+    }
+
+    
+    public Access getAccess() {
+        return access;
+    }
+
+    
+    public void setAccess(Access access) {
+        this.access = access;
+    }
+
+    
+    public Authority getAuthority() {
+        return authority;
+    }
+
+    
+    public void setAuthority(Authority authority) {
+        this.authority = authority;
+    }
+    
+    
+
 }

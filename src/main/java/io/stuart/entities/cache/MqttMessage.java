@@ -55,4 +55,96 @@ public class MqttMessage implements Serializable {
         return MqttQoS.valueOf(qos);
     }
 
+    
+    public String getClientId() {
+        return clientId;
+    }
+
+    
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    
+    public int getMessageId() {
+        return messageId;
+    }
+
+    
+    public void setMessageId(int messageId) {
+        this.messageId = messageId;
+    }
+
+    
+    public String getTopic() {
+        return topic;
+    }
+
+    
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    
+    public byte[] getPayload() {
+        return payload;
+    }
+
+    
+    public void setPayload(byte[] payload) {
+        this.payload = payload;
+    }
+
+    
+    public int getQos() {
+        return qos;
+    }
+
+    
+    public void setQos(int qos) {
+        this.qos = qos;
+    }
+
+    
+    public boolean isDup() {
+        return dup;
+    }
+
+    
+    public void setDup(boolean dup) {
+        this.dup = dup;
+    }
+
+    
+    public boolean isRetain() {
+        return retain;
+    }
+
+    
+    public void setRetain(boolean retain) {
+        this.retain = retain;
+    }
+
+    
+    public int getStatus() {
+        return status;
+    }
+
+    
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    
+    public int getRetry() {
+        return retry;
+    }
+
+    
+    public void setRetry(int retry) {
+        this.retry = retry;
+    }
+    
+    
+
 }

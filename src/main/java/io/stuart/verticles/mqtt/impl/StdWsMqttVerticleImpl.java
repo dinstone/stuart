@@ -33,8 +33,8 @@ public class StdWsMqttVerticleImpl extends StdAbstractMqttVerticle {
         options.setPort(Config.getWsPort());
         options.setMaxMessageSize(Config.getMqttMessageMaxSize());
         options.setTimeoutOnConnect(Config.getMqttClientConnectTimeoutS());
-        options.setOverWebsocket(true);
-        options.setWebsocketPath(Config.getWsPath());
+//        options.setOverWebsocket(true);
+//        options.setWebsocketPath(Config.getWsPath());
 
         // return mqtt server options
         return options;

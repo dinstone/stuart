@@ -35,6 +35,22 @@ public class MqttRouterKey implements Serializable {
         // do nothing...
     }
 
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
     public MqttRouterKey(String clientId, String topic) {
         this.clientId = clientId;
         this.topic = topic;

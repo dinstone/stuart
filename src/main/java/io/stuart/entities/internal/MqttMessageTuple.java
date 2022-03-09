@@ -41,4 +41,20 @@ public class MqttMessageTuple implements Serializable {
         this.message = message;
     }
 
+    public MqttRoute getRoute() {
+        return route;
+    }
+
+    public void setRoute(MqttRoute route) {
+        this.route = route;
+    }
+
+    public MqttMessage getMessage() {
+        return message;
+    }
+
+    public void setMessage(MqttMessage message) {
+        this.message = message;
+    }
+
 }

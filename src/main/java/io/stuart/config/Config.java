@@ -416,7 +416,8 @@ public class Config {
         }
 
         // get instance metrics period
-        instanceMetricsPeriodMs = props.getLong(PropConst.INSTANCE_METRICS_PERIOD_MS, ParamConst.INSTANCE_METRICS_PERIOD_MS);
+        instanceMetricsPeriodMs = props.getLong(PropConst.INSTANCE_METRICS_PERIOD_MS,
+            ParamConst.INSTANCE_METRICS_PERIOD_MS);
 
         // get storage directory
         storageDir = cmd.getOptionValue(CmdConst.STORAGE_PATH_L_NAME);
@@ -434,13 +435,15 @@ public class Config {
         storageWalArchiveDir = storageDir + File.separator + ParamConst.STORAGE_WAL_ARCHIVE_DIR;
 
         // get storage write synchronization mode
-        storageWriteSyncMode = props.getStr(PropConst.STORAGE_WRITE_SYNC_MODE, ParamConst.STORAGE_WRITE_SYNC_MODE_PRIMARY_SYNC);
+        storageWriteSyncMode = props.getStr(PropConst.STORAGE_WRITE_SYNC_MODE,
+            ParamConst.STORAGE_WRITE_SYNC_MODE_PRIMARY_SYNC);
 
         // get storage wal mode
         storageWalMode = props.getStr(PropConst.STORAGE_WAL_MODE, ParamConst.STORAGE_WAL_MODE_LOG_ONLY);
 
         // get storage wal flush frequency
-        storageWalFlushFrequencyMs = props.getInt(PropConst.STORAGE_WAL_FLUSH_FREQUENCY_MS, ParamConst.STORAGE_WAL_FLUSH_FREQUENCY_MS);
+        storageWalFlushFrequencyMs = props.getInt(PropConst.STORAGE_WAL_FLUSH_FREQUENCY_MS,
+            ParamConst.STORAGE_WAL_FLUSH_FREQUENCY_MS);
 
         // get log directory
         logDir = cmd.getOptionValue(CmdConst.LOG_PATH_L_NAME);
@@ -513,10 +516,12 @@ public class Config {
         mqttClientIdMaxLen = props.getInt(PropConst.MQTT_CLIENT_ID_MAX_LEN, ParamConst.MQTT_CLIENT_ID_MAX_LEN);
 
         // get client connect timeout
-        mqttClientConnectTimeoutS = props.getInt(PropConst.MQTT_CLIENT_CONNECT_TIMEOUT_S, ParamConst.MQTT_CLIENT_CONNECT_TIMEOUT_S);
+        mqttClientConnectTimeoutS = props.getInt(PropConst.MQTT_CLIENT_CONNECT_TIMEOUT_S,
+            ParamConst.MQTT_CLIENT_CONNECT_TIMEOUT_S);
 
         // get client idle timeout
-        mqttClientIdleTimeoutS = props.getInt(PropConst.MQTT_CLIENT_IDLE_TIMEOUT_S, ParamConst.MQTT_CLIENT_IDLE_TIMEOUT_S);
+        mqttClientIdleTimeoutS = props.getInt(PropConst.MQTT_CLIENT_IDLE_TIMEOUT_S,
+            ParamConst.MQTT_CLIENT_IDLE_TIMEOUT_S);
 
         // set packet max size(this property unit is KB), switch to bytes
         mqttPacketMaxSize = props.getInt(PropConst.MQTT_PACKET_MAX_SIZE, ParamConst.MQTT_PACKET_MAX_SIZE) * 1024;
@@ -528,10 +533,12 @@ public class Config {
         mqttRetainMaxCapacity = props.getInt(PropConst.MQTT_RETAIN_MAX_CAPACITY, ParamConst.MQTT_RETAIN_MAX_CAPACITY);
 
         // get retain message max size(this property unit is KB), switch to byte
-        mqttRetainMaxPayload = props.getInt(PropConst.MQTT_RETAIN_MAX_PAYLOAD, ParamConst.MQTT_RETAIN_MAX_PAYLOAD) * 1024;
+        mqttRetainMaxPayload = props.getInt(PropConst.MQTT_RETAIN_MAX_PAYLOAD, ParamConst.MQTT_RETAIN_MAX_PAYLOAD)
+                * 1024;
 
         // get retain message expiry interval
-        mqttRetainExpiryIntervalS = props.getLong(PropConst.MQTT_RETAIN_EXPIRY_INTERVAL_S, ParamConst.MQTT_RETAIN_EXPIRY_INTERVAL_S);
+        mqttRetainExpiryIntervalS = props.getLong(PropConst.MQTT_RETAIN_EXPIRY_INTERVAL_S,
+            ParamConst.MQTT_RETAIN_EXPIRY_INTERVAL_S);
 
         // get mqtt ssl enable
         mqttSslEnable = props.getBool(PropConst.MQTT_SSL_ENABLE, ParamConst.MQTT_SSL_ENABLE);
@@ -551,25 +558,31 @@ public class Config {
         sessionUpgradeQos = props.getBool(PropConst.SESSION_UPGRADE_QOS, ParamConst.SESSION_UPGRADE_QOS);
 
         // get session publish qos2 message await 'PUBREL' max capacity
-        sessionAwaitRelMaxCapacity = props.getInt(PropConst.SESSION_AWAIT_REL_MAX_CAPACITY, ParamConst.SESSION_AWAIT_REL_MAX_CAPACITY);
+        sessionAwaitRelMaxCapacity = props.getInt(PropConst.SESSION_AWAIT_REL_MAX_CAPACITY,
+            ParamConst.SESSION_AWAIT_REL_MAX_CAPACITY);
 
         // get session publish qos2 message await 'PUBREL' expiry interval
-        sessionAwaitRelExpiryIntervalS = props.getLong(PropConst.SESSION_AWAIT_REL_EXPIRY_INTERVAL_S, ParamConst.SESSION_AWAIT_REL_EXPIRY_INTERVAL_S);
+        sessionAwaitRelExpiryIntervalS = props.getLong(PropConst.SESSION_AWAIT_REL_EXPIRY_INTERVAL_S,
+            ParamConst.SESSION_AWAIT_REL_EXPIRY_INTERVAL_S);
 
         // get mqtt session queue max capacity
-        sessionQueueMaxCapacity = props.getInt(PropConst.SESSION_QUEUE_MAX_CAPACITY, ParamConst.SESSION_QUEUE_MAX_CAPACITY);
+        sessionQueueMaxCapacity = props.getInt(PropConst.SESSION_QUEUE_MAX_CAPACITY,
+            ParamConst.SESSION_QUEUE_MAX_CAPACITY);
 
         // get mqtt session queue store the message(qos is 0)
         sessionQueueStoreQos0 = props.getBool(PropConst.SESSION_QUEUE_STORE_QOS0);
 
         // get mqtt session inflight max capacity
-        sessionInflightMaxCapacity = props.getInt(PropConst.SESSION_INFLIGHT_MAX_CAPACITY, ParamConst.SESSION_INFLIGHT_MAX_CAPACITY);
+        sessionInflightMaxCapacity = props.getInt(PropConst.SESSION_INFLIGHT_MAX_CAPACITY,
+            ParamConst.SESSION_INFLIGHT_MAX_CAPACITY);
 
         // get mqtt session inflight message expiry interval
-        sessionInflightExpiryIntervalS = props.getLong(PropConst.SESSION_INFLIGHT_EXPIRY_INTERVAL_S, ParamConst.SESSION_INFLIGHT_EXPIRY_INTERVAL_S);
+        sessionInflightExpiryIntervalS = props.getLong(PropConst.SESSION_INFLIGHT_EXPIRY_INTERVAL_S,
+            ParamConst.SESSION_INFLIGHT_EXPIRY_INTERVAL_S);
 
         // get mqtt session inflight message max retries
-        sessionInflightMaxRetries = props.getInt(PropConst.SESSION_INFLIGHT_MAX_RETRIES, ParamConst.SESSION_INFLIGHT_MAX_RETRIES);
+        sessionInflightMaxRetries = props.getInt(PropConst.SESSION_INFLIGHT_MAX_RETRIES,
+            ParamConst.SESSION_INFLIGHT_MAX_RETRIES);
     }
 
     private static void auth(CommandLine cmd) {
@@ -597,7 +610,8 @@ public class Config {
 
     private static void vertx(CommandLine cmd) {
         // get vertx multi-instances enable
-        vertxMultiInstancesEnable = props.getBool(PropConst.VERTX_MULTI_INSTANCES_ENABLE, ParamConst.VERTX_MULTI_INSTANCES_ENABLE);
+        vertxMultiInstancesEnable = props.getBool(PropConst.VERTX_MULTI_INSTANCES_ENABLE,
+            ParamConst.VERTX_MULTI_INSTANCES_ENABLE);
 
         // get vertx multi-instances
         vertxMultiInstances = props.getInt(PropConst.VERTX_MULTI_INSTANCES, ParamConst.VERTX_MULTI_INSTANCES);
@@ -607,10 +621,12 @@ public class Config {
 
         // enable/disable the file cache: system use the ".vertx" directory cache files
         // disable the cache in development mode/enable the cache in production mode
-        vertxFileCachingEnabled = props.getBool(PropConst.VERTX_FILE_CACHING_ENABLED, ParamConst.VERTX_FILE_CACHING_ENABLED);
+        vertxFileCachingEnabled = props.getBool(PropConst.VERTX_FILE_CACHING_ENABLED,
+            ParamConst.VERTX_FILE_CACHING_ENABLED);
 
         // get http session timeout
-        vertxHttpSessionTimeoutMs = props.getLong(PropConst.VERTX_HTTP_SESSION_TIMEOUT_MS, ParamConst.VERTX_HTTP_SESSION_TIMEOUT_MS);
+        vertxHttpSessionTimeoutMs = props.getLong(PropConst.VERTX_HTTP_SESSION_TIMEOUT_MS,
+            ParamConst.VERTX_HTTP_SESSION_TIMEOUT_MS);
     }
 
     private static void cluster(CommandLine cmd) {
@@ -626,7 +642,8 @@ public class Config {
         // get cluster baseline topology rebalance time, when a persistence node(in
         // baseline topology) is left or failed, cluster baseline topology will
         // rebalance after this time
-        clusterBltRebalanceTimeMs = props.getInt(PropConst.CLSUTER_BLT_REBALANCE_TIME_MS, ParamConst.CLSUTER_BLT_REBALANCE_TIME_MS);
+        clusterBltRebalanceTimeMs = props.getInt(PropConst.CLSUTER_BLT_REBALANCE_TIME_MS,
+            ParamConst.CLSUTER_BLT_REBALANCE_TIME_MS);
 
         // get vmip addresses
         vmipAddresses = cmd.getOptionValue(CmdConst.VMIP_ADDRESSES_L_NAME);
@@ -719,22 +736,27 @@ public class Config {
         }
 
         // get authentication redis hget key prefix
-        authRedisUserKeyPrefix = props.getStr(PropConst.AUTH_REDIS_USER_KEY_PREFIX, ParamConst.AUTH_REDIS_USER_KEY_PREFIX);
+        authRedisUserKeyPrefix = props.getStr(PropConst.AUTH_REDIS_USER_KEY_PREFIX,
+            ParamConst.AUTH_REDIS_USER_KEY_PREFIX);
 
         // get authentication redis hget field
         authRedisPasswdField = props.getStr(PropConst.AUTH_REDIS_PASSWD_FIELD, ParamConst.AUTH_REDIS_PASSWD_FIELD);
 
         // get acl redis user key prefix
-        authRedisAclUserKeyPrefix = props.getStr(PropConst.AUTH_REDIS_ACL_USER_KEY_PREFIX, ParamConst.AUTH_REDIS_ACL_USER_KEY_PREFIX);
+        authRedisAclUserKeyPrefix = props.getStr(PropConst.AUTH_REDIS_ACL_USER_KEY_PREFIX,
+            ParamConst.AUTH_REDIS_ACL_USER_KEY_PREFIX);
 
         // get acl redis ip address key prefix
-        authRedisAclIpAddrKeyPrefix = props.getStr(PropConst.AUTH_REDIS_ACL_IPADDR_KEY_PREFIX, ParamConst.AUTH_REDIS_ACL_IPADDR_KEY_PREFIX);
+        authRedisAclIpAddrKeyPrefix = props.getStr(PropConst.AUTH_REDIS_ACL_IPADDR_KEY_PREFIX,
+            ParamConst.AUTH_REDIS_ACL_IPADDR_KEY_PREFIX);
 
         // get acl redis client id key prefix
-        authRedisAclClientKeyPrefix = props.getStr(PropConst.AUTH_REDIS_ACL_CLIENT_KEY_PREFIX, ParamConst.AUTH_REDIS_ACL_CLIENT_KEY_PREFIX);
+        authRedisAclClientKeyPrefix = props.getStr(PropConst.AUTH_REDIS_ACL_CLIENT_KEY_PREFIX,
+            ParamConst.AUTH_REDIS_ACL_CLIENT_KEY_PREFIX);
 
         // get acl redis all key prefix
-        authRedisAclAllKeyPrefix = props.getStr(PropConst.AUTH_REDIS_ACL_ALL_KEY_PREFIX, ParamConst.AUTH_REDIS_ACL_ALL_KEY_PREFIX);
+        authRedisAclAllKeyPrefix = props.getStr(PropConst.AUTH_REDIS_ACL_ALL_KEY_PREFIX,
+            ParamConst.AUTH_REDIS_ACL_ALL_KEY_PREFIX);
     }
 
     private static void rdb(CommandLine cmd) {
@@ -789,7 +811,8 @@ public class Config {
         authMongoAuthSource = props.getStr(PropConst.AUTH_MONGO_AUTH_SOURCE);
 
         // get authentication MongoDB authentication mechanism
-        authMongoAuthMechanism = props.getStr(PropConst.AUTH_MONGO_AUTH_MECHANISM, ParamConst.AUTH_MONGO_AUTH_MECHANISM);
+        authMongoAuthMechanism = props.getStr(PropConst.AUTH_MONGO_AUTH_MECHANISM,
+            ParamConst.AUTH_MONGO_AUTH_MECHANISM);
 
         // get authentication MongoDB max pool size
         authMongoMaxPoolSize = props.getInt(PropConst.AUTH_MONGO_MAX_POOL_SIZE, ParamConst.AUTH_MONGO_MAX_POOL_SIZE);
@@ -798,44 +821,54 @@ public class Config {
         authMongoMinPoolSize = props.getInt(PropConst.AUTH_MONGO_MIN_POOL_SIZE, ParamConst.AUTH_MONGO_MIN_POOL_SIZE);
 
         // get authentication MongoDB max idle time
-        authMongoMaxIdleTimeMs = props.getLong(PropConst.AUTH_MONGO_MAX_IDLE_TIME_MS, ParamConst.AUTH_MONGO_MAX_IDLE_TIME_MS);
+        authMongoMaxIdleTimeMs = props.getLong(PropConst.AUTH_MONGO_MAX_IDLE_TIME_MS,
+            ParamConst.AUTH_MONGO_MAX_IDLE_TIME_MS);
 
         // get authentication MongoDB max life time
-        authMongoMaxLifeTimeMs = props.getLong(PropConst.AUTH_MONGO_MAX_LIFE_TIME_MS, ParamConst.AUTH_MONGO_MAX_LIFE_TIME_MS);
+        authMongoMaxLifeTimeMs = props.getLong(PropConst.AUTH_MONGO_MAX_LIFE_TIME_MS,
+            ParamConst.AUTH_MONGO_MAX_LIFE_TIME_MS);
 
         // get authentication MongoDB wait queue multiple
-        authMongoWaitQueueMultiple = props.getInt(PropConst.AUTH_MONGO_WAIT_QUEUE_MULTIPLE, ParamConst.AUTH_MONGO_WAIT_QUEUE_MULTIPLE);
+        authMongoWaitQueueMultiple = props.getInt(PropConst.AUTH_MONGO_WAIT_QUEUE_MULTIPLE,
+            ParamConst.AUTH_MONGO_WAIT_QUEUE_MULTIPLE);
 
         // get authentication MongoDB wait queue timeout
-        authMongoWaitQueueTimeoutMs = props.getLong(PropConst.AUTH_MONGO_WAIT_QUEUE_TIMEOUT_MS, ParamConst.AUTH_MONGO_WAIT_QUEUE_TIMEOUT_MS);
+        authMongoWaitQueueTimeoutMs = props.getLong(PropConst.AUTH_MONGO_WAIT_QUEUE_TIMEOUT_MS,
+            ParamConst.AUTH_MONGO_WAIT_QUEUE_TIMEOUT_MS);
 
         // get authentication MongoDB maintenance frequency
-        authMongoMaintenanceFrequencyMs = props.getLong(PropConst.AUTH_MONGO_MAINTENANCE_FREQUENCY_MS, ParamConst.AUTH_MONGO_MAINTENANCE_FREQUENCY_MS);
+        authMongoMaintenanceFrequencyMs = props.getLong(PropConst.AUTH_MONGO_MAINTENANCE_FREQUENCY_MS,
+            ParamConst.AUTH_MONGO_MAINTENANCE_FREQUENCY_MS);
 
         // get authentication MongoDB maintenance initial delay
         authMongoMaintenanceInitialDelayMs = props.getLong(PropConst.AUTH_MONGO_MAINTENANCE_INITIAL_DELAY_MS,
-                ParamConst.AUTH_MONGO_MAINTENANCE_INITIAL_DELAY_MS);
+            ParamConst.AUTH_MONGO_MAINTENANCE_INITIAL_DELAY_MS);
 
         // get authentication MongoDB connect timeout
-        authMongoConnectTimeoutMs = props.getInt(PropConst.AUTH_MONGO_CONNECT_TIMEOUT_MS, ParamConst.AUTH_MONGO_CONNECT_TIMEOUT_MS);
+        authMongoConnectTimeoutMs = props.getInt(PropConst.AUTH_MONGO_CONNECT_TIMEOUT_MS,
+            ParamConst.AUTH_MONGO_CONNECT_TIMEOUT_MS);
 
         // get authentication MongoDB socket timeout
-        authMongoSocketTimeoutMs = props.getInt(PropConst.AUTH_MONGO_SOCKET_TIMEOUT_MS, ParamConst.AUTH_MONGO_SOCKET_TIMEOUT_MS);
+        authMongoSocketTimeoutMs = props.getInt(PropConst.AUTH_MONGO_SOCKET_TIMEOUT_MS,
+            ParamConst.AUTH_MONGO_SOCKET_TIMEOUT_MS);
 
         // get MongoDB user collection name
         authMongoUser = props.getStr(PropConst.AUTH_MONGO_USER, ParamConst.AUTH_MONGO_USER);
 
         // get MongoDB user collection username field
-        authMongoUserUsernameField = props.getStr(PropConst.AUTH_MONGO_USER_USERNAME_FIELD, ParamConst.AUTH_MONGO_USER_USERNAME_FIELD);
+        authMongoUserUsernameField = props.getStr(PropConst.AUTH_MONGO_USER_USERNAME_FIELD,
+            ParamConst.AUTH_MONGO_USER_USERNAME_FIELD);
 
         // get MongoDB user collection password field
-        authMongoUserPasswordField = props.getStr(PropConst.AUTH_MONGO_USER_PASSWORD_FIELD, ParamConst.AUTH_MONGO_USER_PASSWORD_FIELD);
+        authMongoUserPasswordField = props.getStr(PropConst.AUTH_MONGO_USER_PASSWORD_FIELD,
+            ParamConst.AUTH_MONGO_USER_PASSWORD_FIELD);
 
         // get MongoDB acl collection name
         authMongoAcl = props.getStr(PropConst.AUTH_MONGO_ACL, ParamConst.AUTH_MONGO_ACL);
 
         // get MongoDB acl collection target field
-        authMongoAclTargetField = props.getStr(PropConst.AUTH_MONGO_ACL_TARGET_FIELD, ParamConst.AUTH_MONGO_ACL_TARGET_FIELD);
+        authMongoAclTargetField = props.getStr(PropConst.AUTH_MONGO_ACL_TARGET_FIELD,
+            ParamConst.AUTH_MONGO_ACL_TARGET_FIELD);
 
         // get MongoDB acl collection type field
         authMongoAclTypeField = props.getStr(PropConst.AUTH_MONGO_ACL_TYPE_FIELD, ParamConst.AUTH_MONGO_ACL_TYPE_FIELD);
@@ -844,13 +877,444 @@ public class Config {
         authMongoAclSeqField = props.getStr(PropConst.AUTH_MONGO_ACL_SEQ_FIELD, ParamConst.AUTH_MONGO_ACL_SEQ_FIELD);
 
         // get MongoDB acl collection topics field
-        authMongoAclTopicsField = props.getStr(PropConst.AUTH_MONGO_ACL_TOPICS_FIELD, ParamConst.AUTH_MONGO_ACL_TOPICS_FIELD);
+        authMongoAclTopicsField = props.getStr(PropConst.AUTH_MONGO_ACL_TOPICS_FIELD,
+            ParamConst.AUTH_MONGO_ACL_TOPICS_FIELD);
 
         // get MongoDB acl collection topic field
-        authMongoAclTopicField = props.getStr(PropConst.AUTH_MONGO_ACL_TOPIC_FIELD, ParamConst.AUTH_MONGO_ACL_TOPIC_FIELD);
+        authMongoAclTopicField = props.getStr(PropConst.AUTH_MONGO_ACL_TOPIC_FIELD,
+            ParamConst.AUTH_MONGO_ACL_TOPIC_FIELD);
 
         // get MongoDB acl collection authority field
-        authMongoAclAuthorityField = props.getStr(PropConst.AUTH_MONGO_ACL_AUTHORITY_FIELD, ParamConst.AUTH_MONGO_ACL_AUTHORITY_FIELD);
+        authMongoAclAuthorityField = props.getStr(PropConst.AUTH_MONGO_ACL_AUTHORITY_FIELD,
+            ParamConst.AUTH_MONGO_ACL_AUTHORITY_FIELD);
+    }
+
+    public static Props getProps() {
+        return props;
+    }
+
+    public static String getInstanceId() {
+        return instanceId;
+    }
+
+    public static String getInstanceListenAddr() {
+        return instanceListenAddr;
+    }
+
+    public static long getInstanceMetricsPeriodMs() {
+        return instanceMetricsPeriodMs;
+    }
+
+    public static String getStorageDir() {
+        return storageDir;
+    }
+
+    public static String getStorageDataDir() {
+        return storageDataDir;
+    }
+
+    public static String getStorageWalDir() {
+        return storageWalDir;
+    }
+
+    public static String getStorageWalArchiveDir() {
+        return storageWalArchiveDir;
+    }
+
+    public static String getStorageWriteSyncMode() {
+        return storageWriteSyncMode;
+    }
+
+    public static String getStorageWalMode() {
+        return storageWalMode;
+    }
+
+    public static int getStorageWalFlushFrequencyMs() {
+        return storageWalFlushFrequencyMs;
+    }
+
+    public static String getLogDir() {
+        return logDir;
+    }
+
+    public static String getLogLevel() {
+        return logLevel;
+    }
+
+    public static Integer getMqttPort() {
+        return mqttPort;
+    }
+
+    public static Integer getMqttSslPort() {
+        return mqttSslPort;
+    }
+
+    public static Integer getWsPort() {
+        return wsPort;
+    }
+
+    public static String getWsPath() {
+        return wsPath;
+    }
+
+    public static Integer getWssPort() {
+        return wssPort;
+    }
+
+    public static String getWssPath() {
+        return wssPath;
+    }
+
+    public static Integer getHttpPort() {
+        return httpPort;
+    }
+
+    public static Integer getMqttMaxConns() {
+        return mqttMaxConns;
+    }
+
+    public static Integer getMqttSslMaxConns() {
+        return mqttSslMaxConns;
+    }
+
+    public static Integer getWsMaxConns() {
+        return wsMaxConns;
+    }
+
+    public static Integer getWssMaxConns() {
+        return wssMaxConns;
+    }
+
+    public static int getMqttClientIdMaxLen() {
+        return mqttClientIdMaxLen;
+    }
+
+    public static int getMqttClientConnectTimeoutS() {
+        return mqttClientConnectTimeoutS;
+    }
+
+    public static int getMqttClientIdleTimeoutS() {
+        return mqttClientIdleTimeoutS;
+    }
+
+    public static int getMqttPacketMaxSize() {
+        return mqttPacketMaxSize;
+    }
+
+    public static int getMqttMessageMaxSize() {
+        return mqttMessageMaxSize;
+    }
+
+    public static int getMqttRetainMaxCapacity() {
+        return mqttRetainMaxCapacity;
+    }
+
+    public static int getMqttRetainMaxPayload() {
+        return mqttRetainMaxPayload;
+    }
+
+    public static long getMqttRetainExpiryIntervalS() {
+        return mqttRetainExpiryIntervalS;
+    }
+
+    public static boolean isMqttSslEnable() {
+        return mqttSslEnable;
+    }
+
+    public static String getMqttSslKeyPath() {
+        return mqttSslKeyPath;
+    }
+
+    public static String getMqttSslCertPath() {
+        return mqttSslCertPath;
+    }
+
+    public static boolean isMqttMetricsEnable() {
+        return mqttMetricsEnable;
+    }
+
+    public static boolean isSessionUpgradeQos() {
+        return sessionUpgradeQos;
+    }
+
+    public static int getSessionAwaitRelMaxCapacity() {
+        return sessionAwaitRelMaxCapacity;
+    }
+
+    public static long getSessionAwaitRelExpiryIntervalS() {
+        return sessionAwaitRelExpiryIntervalS;
+    }
+
+    public static int getSessionQueueMaxCapacity() {
+        return sessionQueueMaxCapacity;
+    }
+
+    public static boolean isSessionQueueStoreQos0() {
+        return sessionQueueStoreQos0;
+    }
+
+    public static int getSessionInflightMaxCapacity() {
+        return sessionInflightMaxCapacity;
+    }
+
+    public static long getSessionInflightExpiryIntervalS() {
+        return sessionInflightExpiryIntervalS;
+    }
+
+    public static int getSessionInflightMaxRetries() {
+        return sessionInflightMaxRetries;
+    }
+
+    public static AES getAes() {
+        return aes;
+    }
+
+    public static boolean isAuthAllowAnonymous() {
+        return authAllowAnonymous;
+    }
+
+    public static boolean isAuthAclAllowNomatch() {
+        return authAclAllowNomatch;
+    }
+
+    public static String getAuthMode() {
+        return authMode;
+    }
+
+    public static String getAuthRedisHost() {
+        return authRedisHost;
+    }
+
+    public static int getAuthRedisPort() {
+        return authRedisPort;
+    }
+
+    public static String getAuthRedisPass() {
+        return authRedisPass;
+    }
+
+    public static int getAuthRedisSelect() {
+        return authRedisSelect;
+    }
+
+    public static String getAuthRedisUserKeyPrefix() {
+        return authRedisUserKeyPrefix;
+    }
+
+    public static String getAuthRedisPasswdField() {
+        return authRedisPasswdField;
+    }
+
+    public static String getAuthRedisAclUserKeyPrefix() {
+        return authRedisAclUserKeyPrefix;
+    }
+
+    public static String getAuthRedisAclIpAddrKeyPrefix() {
+        return authRedisAclIpAddrKeyPrefix;
+    }
+
+    public static String getAuthRedisAclClientKeyPrefix() {
+        return authRedisAclClientKeyPrefix;
+    }
+
+    public static String getAuthRedisAclAllKeyPrefix() {
+        return authRedisAclAllKeyPrefix;
+    }
+
+    public static String getAuthRdbHost() {
+        return authRdbHost;
+    }
+
+    public static int getAuthRdbPort() {
+        return authRdbPort;
+    }
+
+    public static String getAuthRdbUsername() {
+        return authRdbUsername;
+    }
+
+    public static String getAuthRdbPassword() {
+        return authRdbPassword;
+    }
+
+    public static String getAuthRdbDatabase() {
+        return authRdbDatabase;
+    }
+
+    public static String getAuthRdbCharset() {
+        return authRdbCharset;
+    }
+
+    public static int getAuthRdbMaxPoolSize() {
+        return authRdbMaxPoolSize;
+    }
+
+    public static int getAuthRdbQueryTimeoutMs() {
+        return authRdbQueryTimeoutMs;
+    }
+
+    public static String getAuthMongoHost() {
+        return authMongoHost;
+    }
+
+    public static int getAuthMongoPort() {
+        return authMongoPort;
+    }
+
+    public static String getAuthMongoDbName() {
+        return authMongoDbName;
+    }
+
+    public static String getAuthMongoUsername() {
+        return authMongoUsername;
+    }
+
+    public static String getAuthMongoPassword() {
+        return authMongoPassword;
+    }
+
+    public static String getAuthMongoAuthSource() {
+        return authMongoAuthSource;
+    }
+
+    public static String getAuthMongoAuthMechanism() {
+        return authMongoAuthMechanism;
+    }
+
+    public static int getAuthMongoMaxPoolSize() {
+        return authMongoMaxPoolSize;
+    }
+
+    public static int getAuthMongoMinPoolSize() {
+        return authMongoMinPoolSize;
+    }
+
+    public static long getAuthMongoMaxIdleTimeMs() {
+        return authMongoMaxIdleTimeMs;
+    }
+
+    public static long getAuthMongoMaxLifeTimeMs() {
+        return authMongoMaxLifeTimeMs;
+    }
+
+    public static int getAuthMongoWaitQueueMultiple() {
+        return authMongoWaitQueueMultiple;
+    }
+
+    public static long getAuthMongoWaitQueueTimeoutMs() {
+        return authMongoWaitQueueTimeoutMs;
+    }
+
+    public static long getAuthMongoMaintenanceFrequencyMs() {
+        return authMongoMaintenanceFrequencyMs;
+    }
+
+    public static long getAuthMongoMaintenanceInitialDelayMs() {
+        return authMongoMaintenanceInitialDelayMs;
+    }
+
+    public static int getAuthMongoConnectTimeoutMs() {
+        return authMongoConnectTimeoutMs;
+    }
+
+    public static int getAuthMongoSocketTimeoutMs() {
+        return authMongoSocketTimeoutMs;
+    }
+
+    public static String getAuthMongoUser() {
+        return authMongoUser;
+    }
+
+    public static String getAuthMongoUserUsernameField() {
+        return authMongoUserUsernameField;
+    }
+
+    public static String getAuthMongoUserPasswordField() {
+        return authMongoUserPasswordField;
+    }
+
+    public static String getAuthMongoAcl() {
+        return authMongoAcl;
+    }
+
+    public static String getAuthMongoAclTargetField() {
+        return authMongoAclTargetField;
+    }
+
+    public static String getAuthMongoAclTypeField() {
+        return authMongoAclTypeField;
+    }
+
+    public static String getAuthMongoAclSeqField() {
+        return authMongoAclSeqField;
+    }
+
+    public static String getAuthMongoAclTopicsField() {
+        return authMongoAclTopicsField;
+    }
+
+    public static String getAuthMongoAclTopicField() {
+        return authMongoAclTopicField;
+    }
+
+    public static String getAuthMongoAclAuthorityField() {
+        return authMongoAclAuthorityField;
+    }
+
+    public static boolean isVertxMultiInstancesEnable() {
+        return vertxMultiInstancesEnable;
+    }
+
+    public static int getVertxMultiInstances() {
+        return vertxMultiInstances;
+    }
+
+    public static int getVertxWorkerPoolSize() {
+        return vertxWorkerPoolSize;
+    }
+
+    public static boolean isVertxFileCachingEnabled() {
+        return vertxFileCachingEnabled;
+    }
+
+    public static long getVertxHttpSessionTimeoutMs() {
+        return vertxHttpSessionTimeoutMs;
+    }
+
+    public static String getClusterMode() {
+        return clusterMode;
+    }
+
+    public static int getClusterStorageBackups() {
+        return clusterStorageBackups;
+    }
+
+    public static int getClusterBltRebalanceTimeMs() {
+        return clusterBltRebalanceTimeMs;
+    }
+
+    public static String getVmipAddresses() {
+        return vmipAddresses;
+    }
+
+    public static String getZkConnectString() {
+        return zkConnectString;
+    }
+
+    public static String getZkRootPath() {
+        return zkRootPath;
+    }
+
+    public static long getZkJoinTimeoutMs() {
+        return zkJoinTimeoutMs;
+    }
+
+    public static long getZkSessionTimeoutMs() {
+        return zkSessionTimeoutMs;
+    }
+
+    public static boolean isZkReconnectEnable() {
+        return zkReconnectEnable;
     }
 
 }

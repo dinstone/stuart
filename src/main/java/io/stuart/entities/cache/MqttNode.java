@@ -62,4 +62,100 @@ public class MqttNode implements Serializable {
 
     private String maxFileDescriptors;
 
+    public UUID getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(UUID nodeId) {
+        this.nodeId = nodeId;
+    }
+
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
+    }
+
+    public String getListenAddr() {
+        return listenAddr;
+    }
+
+    public void setListenAddr(String listenAddr) {
+        this.listenAddr = listenAddr;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public boolean isLocalAuth() {
+        return localAuth;
+    }
+
+    public void setLocalAuth(boolean localAuth) {
+        this.localAuth = localAuth;
+    }
+
+    public String getJavaVersion() {
+        return javaVersion;
+    }
+
+    public void setJavaVersion(String javaVersion) {
+        this.javaVersion = javaVersion;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public String getThread() {
+        return thread;
+    }
+
+    public void setThread(String thread) {
+        this.thread = thread;
+    }
+
+    public String getCpu() {
+        return cpu;
+    }
+
+    public void setCpu(String cpu) {
+        this.cpu = cpu;
+    }
+
+    public String getHeap() {
+        return heap;
+    }
+
+    public void setHeap(String heap) {
+        this.heap = heap;
+    }
+
+    public String getOffHeap() {
+        return offHeap;
+    }
+
+    public void setOffHeap(String offHeap) {
+        this.offHeap = offHeap;
+    }
+
+    public String getMaxFileDescriptors() {
+        return maxFileDescriptors;
+    }
+
+    public void setMaxFileDescriptors(String maxFileDescriptors) {
+        this.maxFileDescriptors = maxFileDescriptors;
+    }
+
 }

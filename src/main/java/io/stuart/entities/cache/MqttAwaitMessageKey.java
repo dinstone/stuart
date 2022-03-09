@@ -40,6 +40,22 @@ public class MqttAwaitMessageKey implements Serializable {
         this.messageId = messageId;
     }
 
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public int getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(int messageId) {
+        this.messageId = messageId;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

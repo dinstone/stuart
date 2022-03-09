@@ -52,7 +52,7 @@ public class ClsSslMqttVerticleImpl extends ClsAbstractMqttVerticle {
         options.setTimeoutOnConnect(Config.getMqttClientConnectTimeoutS());
         options.setKeyCertOptions(new PemKeyCertOptions().setKeyPath(Config.getMqttSslKeyPath()).setCertPath(Config.getMqttSslCertPath()));
         options.setSsl(true);
-        options.setOverWebsocket(false);
+//        options.setOverWebsocket(false);
 
         // return mqtt server options
         return options;

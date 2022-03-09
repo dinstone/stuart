@@ -41,4 +41,64 @@ public class SessionMetrics implements Serializable {
 
     private long enqueueCount;
 
+    public long getTopicCount() {
+        return topicCount;
+    }
+
+    public void setTopicCount(long topicCount) {
+        this.topicCount = topicCount;
+    }
+
+    public long getAwaitSize() {
+        return awaitSize;
+    }
+
+    public void setAwaitSize(long awaitSize) {
+        this.awaitSize = awaitSize;
+    }
+
+    public long getQueueSize() {
+        return queueSize;
+    }
+
+    public void setQueueSize(long queueSize) {
+        this.queueSize = queueSize;
+    }
+
+    public long getInflightSize() {
+        return inflightSize;
+    }
+
+    public void setInflightSize(long inflightSize) {
+        this.inflightSize = inflightSize;
+    }
+
+    public long getDroppedCount() {
+        return droppedCount;
+    }
+
+    public void setDroppedCount(long droppedCount) {
+        this.droppedCount = droppedCount;
+    }
+
+    public long getSentCount() {
+        return sentCount;
+    }
+
+    public void setSentCount(long sentCount) {
+        this.sentCount = sentCount;
+    }
+
+    public long getEnqueueCount() {
+        return enqueueCount;
+    }
+
+    public void setEnqueueCount(long enqueueCount) {
+        this.enqueueCount = enqueueCount;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
+    }
+
 }

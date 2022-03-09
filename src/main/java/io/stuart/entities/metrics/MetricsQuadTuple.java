@@ -53,4 +53,40 @@ public class MetricsQuadTuple implements Serializable {
         this.func = func;
     }
 
+    public Object getQuota() {
+        return quota;
+    }
+
+    public void setQuota(Object quota) {
+        this.quota = quota;
+    }
+
+    public long getValue() {
+        return value;
+    }
+
+    public void setValue(long value) {
+        this.value = value;
+    }
+
+    public boolean isCresc() {
+        return cresc;
+    }
+
+    public void setCresc(boolean cresc) {
+        this.cresc = cresc;
+    }
+
+    public Function<MetricsQuadTuple, Boolean> getFunc() {
+        return func;
+    }
+
+    public void setFunc(Function<MetricsQuadTuple, Boolean> func) {
+        this.func = func;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
+    }
+
 }

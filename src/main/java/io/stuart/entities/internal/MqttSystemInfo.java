@@ -33,4 +33,28 @@ public class MqttSystemInfo implements Serializable {
 
     private String systime;
 
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getUptime() {
+        return uptime;
+    }
+
+    public void setUptime(String uptime) {
+        this.uptime = uptime;
+    }
+
+    public String getSystime() {
+        return systime;
+    }
+
+    public void setSystime(String systime) {
+        this.systime = systime;
+    }
+
 }

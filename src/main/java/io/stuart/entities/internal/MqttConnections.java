@@ -33,4 +33,24 @@ public class MqttConnections implements Serializable {
 
     private List<MqttConnection> connections;
 
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
+    }
+
+    public List<MqttConnection> getConnections() {
+        return connections;
+    }
+
+    public void setConnections(List<MqttConnection> connections) {
+        this.connections = connections;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
+    }
+
 }

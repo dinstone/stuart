@@ -43,4 +43,46 @@ public class MqttListener implements Serializable {
 
     private int connCount;
 
+    
+    public String getProtocol() {
+        return protocol;
+    }
+
+    
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    
+    public String getAddressAndPort() {
+        return addressAndPort;
+    }
+
+    
+    public void setAddressAndPort(String addressAndPort) {
+        this.addressAndPort = addressAndPort;
+    }
+
+    
+    public int getConnMaxLimit() {
+        return connMaxLimit;
+    }
+
+    
+    public void setConnMaxLimit(int connMaxLimit) {
+        this.connMaxLimit = connMaxLimit;
+    }
+
+    
+    public int getConnCount() {
+        return connCount;
+    }
+
+    
+    public void setConnCount(int connCount) {
+        this.connCount = connCount;
+    }
+    
+    
+
 }

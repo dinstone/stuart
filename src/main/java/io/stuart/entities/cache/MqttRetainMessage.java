@@ -35,4 +35,36 @@ public class MqttRetainMessage implements Serializable {
 
     private boolean dup;
 
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public byte[] getPayload() {
+        return payload;
+    }
+
+    public void setPayload(byte[] payload) {
+        this.payload = payload;
+    }
+
+    public int getQos() {
+        return qos;
+    }
+
+    public void setQos(int qos) {
+        this.qos = qos;
+    }
+
+    public boolean isDup() {
+        return dup;
+    }
+
+    public void setDup(boolean dup) {
+        this.dup = dup;
+    }
+
 }

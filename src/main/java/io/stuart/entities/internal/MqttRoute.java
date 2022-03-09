@@ -34,4 +34,35 @@ public class MqttRoute implements Serializable {
 
     private int qos;
 
+    
+    public UUID getNodeId() {
+        return nodeId;
+    }
+
+    
+    public void setNodeId(UUID nodeId) {
+        this.nodeId = nodeId;
+    }
+
+    
+    public String getClientId() {
+        return clientId;
+    }
+
+    
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    
+    public int getQos() {
+        return qos;
+    }
+
+    
+    public void setQos(int qos) {
+        this.qos = qos;
+    }
+
+    
 }
