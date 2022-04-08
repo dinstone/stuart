@@ -226,7 +226,7 @@ public interface ParamConst {
 
     static final boolean VERTX_FILE_CACHING_ENABLED = true;
 
-    static final long VERTX_HTTP_SESSION_TIMEOUT_MS = 60 * 60 * 1000;
+    static final long VERTX_HTTP_SESSION_TIMEOUT_MS = 1 * 60 * 1000;
 
     static final String CLUSTER_MODE_STD = "standalone";
 

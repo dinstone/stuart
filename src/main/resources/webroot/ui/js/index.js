@@ -25,6 +25,8 @@ $(function() {
         }
     });
 
+    loadLanguage(getLanguage());
+
     if (window.history && window.history.pushState) {
         $(window).on('popstate', function() {
             // get location hash
@@ -60,19 +62,9 @@ $(function() {
     $('#logout-link').click(function() {
         window.location.href = '/logout';
     });
-
-    // get language
-    var lang = getLanguage();
-
-    loadLanguage(lang, function() {
-        // initialize node list
-        $('#system-node-list').select2({
-            language: lang
-        });
-
-        // initialize content wrapper html
-        initIndex();
-    });
+        
+	// initialize content wrapper html
+    initIndex();
 });
 
 function initIndexMenu(islocalAuth) {
@@ -120,15 +112,15 @@ function initIndexNodeList(nodes, value) {
 function initIndex() {
     // get location hash
     var hash = window.location.hash;
-
     if (hash == '') {
-        window.location.hash = 'console';
         hash = 'console';
     } else {
         hash = hash.substr(1);
     }
+	// trigger popstate event
+    window.location.hash = 'console';
 
-    loadTemplate(hash);
+    // loadTemplate(hash);
 }
 
 function loadTemplate(hash) {
