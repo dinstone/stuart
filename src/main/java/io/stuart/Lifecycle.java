@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package io.stuart.services;
+package io.stuart;
 
-public interface PowerService {
+public interface Lifecycle {
 
     void start();
 

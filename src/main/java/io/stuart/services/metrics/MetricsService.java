@@ -16,10 +16,10 @@
 
 package io.stuart.services.metrics;
 
-import io.stuart.services.PowerService;
+import io.stuart.Lifecycle;
 import io.stuart.services.metrics.impl.MetricsServiceImpl;
 
-public interface MetricsService extends PowerService {
+public interface MetricsService extends Lifecycle {
 
     static MetricsService i() {
         return MetricsServiceImpl.getInstance();

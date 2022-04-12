@@ -27,6 +27,7 @@ import org.apache.ignite.lang.IgniteCallable;
 import org.apache.ignite.lang.IgniteClosure;
 import org.apache.ignite.lang.IgnitePredicate;
 
+import io.stuart.Lifecycle;
 import io.stuart.entities.auth.MqttAcl;
 import io.stuart.entities.auth.MqttAdmin;
 import io.stuart.entities.auth.MqttUser;
@@ -46,11 +47,10 @@ import io.stuart.enums.Status;
 import io.stuart.ext.collections.BoundedIgniteMap;
 import io.stuart.ext.collections.BoundedIgniteMapUnsafe;
 import io.stuart.ext.collections.BoundedIgniteQueue;
-import io.stuart.services.PowerService;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mqtt.messages.MqttPublishMessage;
 
-public interface CacheService extends PowerService {
+public interface CacheService extends Lifecycle {
 
     Ignite getIgnite();
 

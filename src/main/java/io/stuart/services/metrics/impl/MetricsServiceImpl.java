@@ -54,7 +54,7 @@ public class MetricsServiceImpl implements MetricsService {
         // get cluster mode
         String clusterMode = Config.getClusterMode();
 
-        if (ParamConst.CLUSTER_MODE_STD.equalsIgnoreCase(clusterMode)) {
+        if (ParamConst.CLUSTER_MODE_STANDALONE.equalsIgnoreCase(clusterMode)) {
             // get standalone cache service
             this.cacheService = StdCacheServiceImpl.getInstance();
         } else {

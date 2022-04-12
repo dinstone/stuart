@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package io.stuart.services.verticle;
+package io.stuart.bootstrap;
 
-import io.stuart.services.PowerService;
+import io.stuart.Lifecycle;
 
-public interface VerticleService extends PowerService {
-
+public interface ApplicationBootstrap extends Lifecycle {
+    
 }

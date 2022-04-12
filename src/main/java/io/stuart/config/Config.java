@@ -633,7 +633,7 @@ public class Config {
         // get cluster mode configuration option
         clusterMode = cmd.getOptionValue(CmdConst.CLUSTER_MODE_L_NAME);
         if (StringUtils.isBlank(clusterMode)) {
-            clusterMode = props.getStr(PropConst.CLUSTER_MODE, ParamConst.CLUSTER_MODE_STD);
+            clusterMode = props.getStr(PropConst.CLUSTER_MODE, ParamConst.CLUSTER_MODE_STANDALONE);
         }
 
         // get cluster storage backups

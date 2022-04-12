@@ -228,7 +228,7 @@ public interface ParamConst {
 
     static final long VERTX_HTTP_SESSION_TIMEOUT_MS = 1 * 60 * 1000;
 
-    static final String CLUSTER_MODE_STD = "standalone";
+    static final String CLUSTER_MODE_STANDALONE = "standalone";
 
     static final String CLUSTER_MODE_VMIP = "vmip";
 

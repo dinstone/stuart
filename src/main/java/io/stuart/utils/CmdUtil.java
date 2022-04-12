@@ -44,7 +44,7 @@ public class CmdUtil {
         LEVELS.add(ParamConst.LOG_LEVEL_TRACE.toLowerCase());
         LEVELS.add(ParamConst.LOG_LEVEL_WARN.toLowerCase());
 
-        MODES.add(ParamConst.CLUSTER_MODE_STD);
+        MODES.add(ParamConst.CLUSTER_MODE_STANDALONE);
         MODES.add(ParamConst.CLUSTER_MODE_VMIP);
         MODES.add(ParamConst.CLUSTER_MODE_ZK);
     }

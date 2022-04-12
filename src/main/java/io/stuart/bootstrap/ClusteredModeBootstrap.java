@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.stuart.services.verticle.impl;
+package io.stuart.bootstrap;
 
 import java.util.Timer;
 
@@ -30,7 +30,6 @@ import io.stuart.services.cache.impl.ClsCacheServiceImpl;
 import io.stuart.services.metrics.MetricsService;
 import io.stuart.services.session.SessionService;
 import io.stuart.services.session.impl.ClsSessionServiceImpl;
-import io.stuart.services.verticle.VerticleService;
 import io.stuart.tasks.SysRuntimeInfoTask;
 import io.stuart.utils.VertxUtil;
 import io.stuart.verticles.mqtt.impl.ClsSslMqttVerticleImpl;
@@ -44,7 +43,7 @@ import io.vertx.core.VertxOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.spi.cluster.ignite.IgniteClusterManager;
 
-public class ClsVerticleServiceImpl implements VerticleService {
+public class ClusteredModeBootstrap implements ApplicationBootstrap {
 
     private Vertx vertx;
 

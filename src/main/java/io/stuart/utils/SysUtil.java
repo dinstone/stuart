@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import cn.hutool.system.SystemUtil;
-import io.stuart.Starter;
+import io.stuart.Launcher;
 import io.stuart.consts.SysConst;
 import io.stuart.entities.internal.MqttSystemInfo;
 import oshi.SystemInfo;
@@ -129,7 +129,7 @@ public class SysUtil {
     public static MqttSystemInfo getSystemInfo() {
         MqttSystemInfo systemInfo = new MqttSystemInfo();
 
-        systemInfo.setVersion(Starter.class.getPackage().getImplementationVersion());
+        systemInfo.setVersion(Launcher.class.getPackage().getImplementationVersion());
         systemInfo.setUptime(getUptime());
         systemInfo.setSystime(getSystime());
 

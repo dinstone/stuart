@@ -16,18 +16,18 @@
 
 package io.stuart;
 
+import io.stuart.bootstrap.ClusteredModeBootstrap;
+import io.stuart.bootstrap.StandaloneModeBootstrap;
+import io.stuart.bootstrap.ApplicationBootstrap;
 import io.stuart.config.Config;
 import io.stuart.consts.ParamConst;
 import io.stuart.consts.PropConst;
 import io.stuart.hook.ShutdownHook;
 import io.stuart.log.Logger;
-import io.stuart.services.verticle.VerticleService;
-import io.stuart.services.verticle.impl.ClsVerticleServiceImpl;
-import io.stuart.services.verticle.impl.StdVerticleServiceImpl;
 import io.stuart.utils.CmdUtil;
 import io.vertx.core.cli.CommandLine;
 
-public class Starter {
+public class Launcher {
 
     public static void main(String[] args) {
         CommandLine commandLine = CmdUtil.cli(args);
@@ -46,25 +46,25 @@ public class Starter {
         // get cluster mode
         String clusterMode = Config.getClusterMode();
         // verticle service
-        VerticleService verticleService = null;
+        ApplicationBootstrap bootstrap = null;
 
-        if (ParamConst.CLUSTER_MODE_STD.equalsIgnoreCase(clusterMode)) {
+        if (ParamConst.CLUSTER_MODE_STANDALONE.equalsIgnoreCase(clusterMode)) {
             // new standalone verticle service
-            verticleService = new StdVerticleServiceImpl();
+            bootstrap = new StandaloneModeBootstrap();
         } else if (ParamConst.CLUSTER_MODE_VMIP.equalsIgnoreCase(clusterMode) || ParamConst.CLUSTER_MODE_ZK.equalsIgnoreCase(clusterMode)) {
             // new clustered verticle service
-            verticleService = new ClsVerticleServiceImpl();
+            bootstrap = new ClusteredModeBootstrap();
         }
 
         // check: verticle service is not null
-        if (verticleService != null) {
-            Logger.log().info("Stuart server {} is starting...", Starter.class.getPackage().getImplementationVersion());
+        if (bootstrap != null) {
+            Logger.log().info("Stuart server {} is starting...", Launcher.class.getPackage().getImplementationVersion());
 
             // start verticle service
-            verticleService.start();
+            bootstrap.start();
 
             // add shutdown hook
-            Runtime.getRuntime().addShutdownHook(new ShutdownHook(verticleService));
+            Runtime.getRuntime().addShutdownHook(new ShutdownHook(bootstrap));
         } else {
             Logger.log().error("Stuart's server cluster mode option is invalid.");
         }

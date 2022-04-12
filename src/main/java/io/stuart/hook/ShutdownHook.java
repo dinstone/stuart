@@ -16,13 +16,13 @@
 
 package io.stuart.hook;
 
-import io.stuart.services.verticle.VerticleService;
+import io.stuart.bootstrap.ApplicationBootstrap;
 
 public class ShutdownHook extends Thread {
 
-    private VerticleService verticleService;
+    private ApplicationBootstrap verticleService;
 
-    public ShutdownHook(VerticleService verticleService) {
+    public ShutdownHook(ApplicationBootstrap verticleService) {
         this.verticleService = verticleService;
     }
 

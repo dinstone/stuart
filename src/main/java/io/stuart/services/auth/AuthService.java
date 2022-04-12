@@ -19,10 +19,10 @@ package io.stuart.services.auth;
 import java.util.List;
 import java.util.function.Function;
 
+import io.stuart.Lifecycle;
 import io.stuart.entities.internal.MqttAuthority;
-import io.stuart.services.PowerService;
 
-public interface AuthService extends PowerService {
+public interface AuthService extends Lifecycle {
 
     void auth(String username, String password, Function<Boolean, Void> handler);
 

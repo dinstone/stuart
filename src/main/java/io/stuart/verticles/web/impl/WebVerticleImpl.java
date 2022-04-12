@@ -25,7 +25,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ignite.lang.IgniteCallable;
 
-import io.stuart.Starter;
+import io.stuart.Launcher;
 import io.stuart.closures.QueryConnectionsClosure;
 import io.stuart.closures.QueryListenersClosure;
 import io.stuart.config.Config;
@@ -427,7 +427,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
                 // initialize local system information
                 systemInfo = new MqttSystemInfo();
                 // set version
-                systemInfo.setVersion(Starter.class.getPackage().getImplementationVersion());
+                systemInfo.setVersion(Launcher.class.getPackage().getImplementationVersion());
                 // set uptime
                 systemInfo.setUptime(SysUtil.getUptime());
                 // set system time

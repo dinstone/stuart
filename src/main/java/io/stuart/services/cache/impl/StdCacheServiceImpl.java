@@ -24,7 +24,7 @@ import org.apache.ignite.Ignition;
 import org.apache.ignite.lang.IgniteCallable;
 import org.apache.ignite.lang.IgniteClosure;
 
-import io.stuart.Starter;
+import io.stuart.Launcher;
 import io.stuart.caches.AclCache;
 import io.stuart.caches.AdminCache;
 import io.stuart.caches.AwaitCache;
@@ -170,7 +170,7 @@ public class StdCacheServiceImpl extends AbstractCacheService {
         node.setNodeId(thisNodeId);
         node.setInstanceId(Config.getInstanceId());
         node.setListenAddr(Config.getInstanceListenAddr());
-        node.setVersion(Starter.class.getPackage().getImplementationVersion());
+        node.setVersion(Launcher.class.getPackage().getImplementationVersion());
         node.setLocalAuth(ParamConst.AUTH_MODE_LOCAL.equalsIgnoreCase(Config.getAuthMode()));
         node.setJavaVersion(SysUtil.getJavaAndJvmInfo());
         node.setStatus(Status.Running.value());
