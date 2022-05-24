@@ -132,6 +132,7 @@ function loadTemplate(hash) {
 
     // load html
     $('.content-wrapper').load(hash + '.html', function() {
+		console.info(hash + '.html');
         // remove modal open class
         $('body').removeClass('modal-open');
 

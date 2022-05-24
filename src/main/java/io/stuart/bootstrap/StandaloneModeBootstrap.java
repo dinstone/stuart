@@ -37,6 +37,7 @@ import io.stuart.verticles.web.impl.WebVerticleImpl;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import io.vertx.core.file.FileSystemOptions;
 
 public class StandaloneModeBootstrap implements ApplicationBootstrap {
 
@@ -57,7 +58,7 @@ public class StandaloneModeBootstrap implements ApplicationBootstrap {
         Logger.log().info("Stuart's standalone instance is starting...");
 
         // vert.x options
-        VertxOptions vertxOptions = VertxUtil.vertxOptions();
+        VertxOptions vertxOptions = VertxUtil.vertxOptions().setFileSystemOptions(new FileSystemOptions().setFileCachingEnabled(false));
         // vertx. deployment options
         DeploymentOptions deploymentOptions = VertxUtil.vertxDeploymentOptions(vertxOptions, null);
 
