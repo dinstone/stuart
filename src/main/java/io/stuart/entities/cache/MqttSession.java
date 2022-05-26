@@ -22,11 +22,6 @@ import java.util.UUID;
 import org.apache.ignite.cache.query.annotations.QueryGroupIndex;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
-import lombok.Data;
-import lombok.ToString;
-
-@Data
-@ToString
 @QueryGroupIndex(name = "mqtt_session_idx", inlineSize = -1)
 public class MqttSession implements Serializable {
 

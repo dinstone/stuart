@@ -34,328 +34,221 @@ import io.stuart.props.Props;
 import io.stuart.utils.DirUtil;
 import io.stuart.utils.LogUtil;
 import io.vertx.core.cli.CommandLine;
-import lombok.Getter;
 
 public class Config {
 
     private static Props props;
 
-    @Getter
     private static String instanceId = ParamConst.INSTANCE_ID;
 
-    @Getter
     private static String instanceListenAddr = ParamConst.INSTANCE_LISTEN_ADDR;
 
-    @Getter
     private static long instanceMetricsPeriodMs = ParamConst.INSTANCE_METRICS_PERIOD_MS;
 
-    @Getter
     private static String storageDir = ParamConst.STORAGE_DIR;
 
-    @Getter
     private static String storageDataDir;
 
-    @Getter
     private static String storageWalDir;
 
-    @Getter
     private static String storageWalArchiveDir;
 
-    @Getter
     private static String storageWriteSyncMode = ParamConst.STORAGE_WRITE_SYNC_MODE_PRIMARY_SYNC;
 
-    @Getter
     private static String storageWalMode = ParamConst.STORAGE_WAL_MODE_LOG_ONLY;
 
-    @Getter
     private static int storageWalFlushFrequencyMs = ParamConst.STORAGE_WAL_FLUSH_FREQUENCY_MS;
 
-    @Getter
     private static String logDir = ParamConst.LOG_DIR;
 
-    @Getter
     private static String logLevel = ParamConst.LOG_LEVEL_INFO;
 
-    @Getter
     private static Integer mqttPort = ParamConst.MQTT_PORT;
 
-    @Getter
     private static Integer mqttSslPort = ParamConst.MQTT_SSL_PORT;
 
-    @Getter
     private static Integer wsPort = ParamConst.WS_PORT;
 
-    @Getter
     private static String wsPath = ParamConst.WS_PATH;
 
-    @Getter
     private static Integer wssPort = ParamConst.WSS_PORT;
 
-    @Getter
     private static String wssPath = ParamConst.WSS_PATH;
 
-    @Getter
     private static Integer httpPort = ParamConst.HTTP_PORT;
 
-    @Getter
     private static Integer mqttMaxConns = ParamConst.MQTT_MAX_CONNECTIONS;
 
-    @Getter
     private static Integer mqttSslMaxConns = ParamConst.MQTT_SSL_MAX_CONNECTIONS;
 
-    @Getter
     private static Integer wsMaxConns = ParamConst.WS_MAX_CONNECTIONS;
 
-    @Getter
     private static Integer wssMaxConns = ParamConst.WSS_MAX_CONNECTIONS;
 
-    @Getter
     private static int mqttClientIdMaxLen = ParamConst.MQTT_CLIENT_ID_MAX_LEN;
 
-    @Getter
     private static int mqttClientConnectTimeoutS = ParamConst.MQTT_CLIENT_CONNECT_TIMEOUT_S;
 
-    @Getter
     private static int mqttClientIdleTimeoutS = ParamConst.MQTT_CLIENT_IDLE_TIMEOUT_S;
 
-    @Getter
     private static int mqttPacketMaxSize = ParamConst.MQTT_PACKET_MAX_SIZE;
 
-    @Getter
     private static int mqttMessageMaxSize = ParamConst.MQTT_PACKET_MAX_SIZE - ParamConst.MQTT_FIXED_HEADER_MIN_SIZE;
 
-    @Getter
     private static int mqttRetainMaxCapacity = ParamConst.MQTT_RETAIN_MAX_CAPACITY;
 
-    @Getter
     private static int mqttRetainMaxPayload = ParamConst.MQTT_RETAIN_MAX_PAYLOAD;
 
-    @Getter
     private static long mqttRetainExpiryIntervalS = ParamConst.MQTT_RETAIN_EXPIRY_INTERVAL_S;
 
-    @Getter
     private static boolean mqttSslEnable = ParamConst.MQTT_SSL_ENABLE;
 
-    @Getter
     private static String mqttSslKeyPath;
 
-    @Getter
     private static String mqttSslCertPath;
 
-    @Getter
     private static boolean mqttMetricsEnable = ParamConst.MQTT_METRICS_ENABLE;
 
-    @Getter
     private static boolean sessionUpgradeQos = ParamConst.SESSION_UPGRADE_QOS;
 
-    @Getter
     private static int sessionAwaitRelMaxCapacity = ParamConst.SESSION_AWAIT_REL_MAX_CAPACITY;
 
-    @Getter
     private static long sessionAwaitRelExpiryIntervalS = ParamConst.SESSION_AWAIT_REL_EXPIRY_INTERVAL_S;
 
-    @Getter
     private static int sessionQueueMaxCapacity = ParamConst.SESSION_QUEUE_MAX_CAPACITY;
 
-    @Getter
     private static boolean sessionQueueStoreQos0 = ParamConst.SESSION_QUEUE_STORE_QOS0;
 
-    @Getter
     private static int sessionInflightMaxCapacity = ParamConst.SESSION_INFLIGHT_MAX_CAPACITY;
 
-    @Getter
     private static long sessionInflightExpiryIntervalS = ParamConst.SESSION_INFLIGHT_EXPIRY_INTERVAL_S;
 
-    @Getter
     private static int sessionInflightMaxRetries = ParamConst.SESSION_INFLIGHT_MAX_RETRIES;
 
-    @Getter
     private static AES aes;
 
-    @Getter
     private static boolean authAllowAnonymous = ParamConst.AUTH_ALLOW_ANONYMOUS;
 
-    @Getter
     private static boolean authAclAllowNomatch = ParamConst.AUTH_ACL_ALLOW_NOMATCH;
 
-    @Getter
     private static String authMode = ParamConst.AUTH_MODE;
 
-    @Getter
     private static String authRedisHost;
 
-    @Getter
     private static int authRedisPort = ParamConst.AUTH_REDIS_PORT;
 
-    @Getter
     private static String authRedisPass;
 
-    @Getter
     private static int authRedisSelect = ParamConst.AUTH_REDIS_SELECT;
 
-    @Getter
     private static String authRedisUserKeyPrefix = ParamConst.AUTH_REDIS_USER_KEY_PREFIX;
 
-    @Getter
     private static String authRedisPasswdField = ParamConst.AUTH_REDIS_PASSWD_FIELD;
 
-    @Getter
     private static String authRedisAclUserKeyPrefix = ParamConst.AUTH_REDIS_ACL_USER_KEY_PREFIX;
 
-    @Getter
     private static String authRedisAclIpAddrKeyPrefix = ParamConst.AUTH_REDIS_ACL_IPADDR_KEY_PREFIX;
 
-    @Getter
     private static String authRedisAclClientKeyPrefix = ParamConst.AUTH_REDIS_ACL_CLIENT_KEY_PREFIX;
 
-    @Getter
     private static String authRedisAclAllKeyPrefix = ParamConst.AUTH_REDIS_ACL_ALL_KEY_PREFIX;
 
-    @Getter
     private static String authRdbHost;
 
-    @Getter
     private static int authRdbPort;
 
-    @Getter
     private static String authRdbUsername;
 
-    @Getter
     private static String authRdbPassword;
 
-    @Getter
     private static String authRdbDatabase;
 
-    @Getter
     private static String authRdbCharset = ParamConst.AUTH_RDB_CHARSET;
 
-    @Getter
     private static int authRdbMaxPoolSize = ParamConst.AUTH_RDB_MAX_POOL_SIZE;
 
-    @Getter
     private static int authRdbQueryTimeoutMs = ParamConst.AUTH_RDB_QUERY_TIMEOUT_MS;
 
-    @Getter
     private static String authMongoHost;
 
-    @Getter
     private static int authMongoPort = ParamConst.AUTH_MONGO_PORT;
 
-    @Getter
     private static String authMongoDbName;
 
-    @Getter
     private static String authMongoUsername;
 
-    @Getter
     private static String authMongoPassword;
 
-    @Getter
     private static String authMongoAuthSource;
 
-    @Getter
     private static String authMongoAuthMechanism = ParamConst.AUTH_MONGO_AUTH_MECHANISM;
 
-    @Getter
     private static int authMongoMaxPoolSize = ParamConst.AUTH_MONGO_MAX_POOL_SIZE;
 
-    @Getter
     private static int authMongoMinPoolSize = ParamConst.AUTH_MONGO_MIN_POOL_SIZE;
 
-    @Getter
     private static long authMongoMaxIdleTimeMs = ParamConst.AUTH_MONGO_MAX_IDLE_TIME_MS;
 
-    @Getter
     private static long authMongoMaxLifeTimeMs = ParamConst.AUTH_MONGO_MAX_LIFE_TIME_MS;
 
-    @Getter
     private static int authMongoWaitQueueMultiple = ParamConst.AUTH_MONGO_WAIT_QUEUE_MULTIPLE;
 
-    @Getter
     private static long authMongoWaitQueueTimeoutMs = ParamConst.AUTH_MONGO_WAIT_QUEUE_TIMEOUT_MS;
 
-    @Getter
     private static long authMongoMaintenanceFrequencyMs = ParamConst.AUTH_MONGO_MAINTENANCE_FREQUENCY_MS;
 
-    @Getter
     private static long authMongoMaintenanceInitialDelayMs = ParamConst.AUTH_MONGO_MAINTENANCE_INITIAL_DELAY_MS;
 
-    @Getter
     private static int authMongoConnectTimeoutMs = ParamConst.AUTH_MONGO_CONNECT_TIMEOUT_MS;
 
-    @Getter
     private static int authMongoSocketTimeoutMs = ParamConst.AUTH_MONGO_SOCKET_TIMEOUT_MS;
 
-    @Getter
     private static String authMongoUser = ParamConst.AUTH_MONGO_USER;
 
-    @Getter
     private static String authMongoUserUsernameField = ParamConst.AUTH_MONGO_USER_USERNAME_FIELD;
 
-    @Getter
     private static String authMongoUserPasswordField = ParamConst.AUTH_MONGO_USER_PASSWORD_FIELD;
 
-    @Getter
     private static String authMongoAcl = ParamConst.AUTH_MONGO_ACL;
 
-    @Getter
     private static String authMongoAclTargetField = ParamConst.AUTH_MONGO_ACL_TARGET_FIELD;
 
-    @Getter
     private static String authMongoAclTypeField = ParamConst.AUTH_MONGO_ACL_TYPE_FIELD;
 
-    @Getter
     private static String authMongoAclSeqField = ParamConst.AUTH_MONGO_ACL_SEQ_FIELD;
 
-    @Getter
     private static String authMongoAclTopicsField = ParamConst.AUTH_MONGO_ACL_TOPICS_FIELD;
 
-    @Getter
     private static String authMongoAclTopicField = ParamConst.AUTH_MONGO_ACL_TOPIC_FIELD;
 
-    @Getter
     private static String authMongoAclAuthorityField = ParamConst.AUTH_MONGO_ACL_AUTHORITY_FIELD;
 
-    @Getter
     private static boolean vertxMultiInstancesEnable = ParamConst.VERTX_MULTI_INSTANCES_ENABLE;
 
-    @Getter
     private static int vertxMultiInstances = ParamConst.VERTX_MULTI_INSTANCES;
 
-    @Getter
     private static int vertxWorkerPoolSize = ParamConst.VERTX_WORKER_POOL_SIZE;
 
-    @Getter
     private static boolean vertxFileCachingEnabled = ParamConst.VERTX_FILE_CACHING_ENABLED;
 
-    @Getter
     private static long vertxHttpSessionTimeoutMs = ParamConst.VERTX_HTTP_SESSION_TIMEOUT_MS;
 
-    @Getter
     private static String clusterMode;
 
-    @Getter
     private static int clusterStorageBackups = ParamConst.CLUSTER_STORAGE_BACKUPS;
 
-    @Getter
     private static int clusterBltRebalanceTimeMs = ParamConst.CLSUTER_BLT_REBALANCE_TIME_MS;
 
-    @Getter
     private static String vmipAddresses;
 
-    @Getter
     private static String zkConnectString;
 
-    @Getter
     private static String zkRootPath = ParamConst.ZK_ROOT_PATH;
 
-    @Getter
     private static long zkJoinTimeoutMs = ParamConst.ZK_JOIN_TIMEOUT_MS;
 
-    @Getter
     private static long zkSessionTimeoutMs = ParamConst.ZK_SESSION_TIMEOUT_MS;
 
-    @Getter
     private static boolean zkReconnectEnable = ParamConst.ZK_RECONNECT_ENABLE;
 
     public static void init(CommandLine cmd) {

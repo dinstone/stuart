@@ -18,11 +18,6 @@ package io.stuart.entities.cache;
 
 import java.io.Serializable;
 
-import lombok.Data;
-import lombok.ToString;
-
-@Data
-@ToString
 public class MqttWillMessage implements Serializable {
 
     private static final long serialVersionUID = 2173961158751954698L;
@@ -31,7 +26,7 @@ public class MqttWillMessage implements Serializable {
 
     private String topic;
 
-    private String payload;
+    private byte[] payload;
 
     private int qos;
 
@@ -53,11 +48,11 @@ public class MqttWillMessage implements Serializable {
         this.topic = topic;
     }
 
-    public String getPayload() {
+    public byte[] getPayload() {
         return payload;
     }
 
-    public void setPayload(String payload) {
+    public void setPayload(byte[] payload) {
         this.payload = payload;
     }
 

@@ -16,8 +16,6 @@
 
 package io.stuart.utils;
 
-import java.nio.charset.StandardCharsets;
-
 import io.stuart.entities.cache.MqttAwaitMessage;
 import io.stuart.entities.cache.MqttMessage;
 import io.stuart.entities.cache.MqttRetainMessage;
@@ -103,7 +101,7 @@ public class MsgUtil {
         MqttMessage mqttMessage = new MqttMessage();
 
         mqttMessage.setTopic(message.getTopic());
-        mqttMessage.setPayload(message.getPayload().getBytes(StandardCharsets.UTF_8));
+        mqttMessage.setPayload(message.getPayload());
         mqttMessage.setQos(message.getQos());
         mqttMessage.setDup(false);
         mqttMessage.setRetain(message.isRetain());
@@ -145,7 +143,7 @@ public class MsgUtil {
 
         willMessage.setClientId(clientId);
         willMessage.setTopic(message.getWillTopic());
-        willMessage.setPayload(message.getWillMessage());
+        willMessage.setPayload(message.getWillMessage().getBytes());
         willMessage.setQos(message.getWillQos());
         willMessage.setRetain(message.isWillRetain());
 

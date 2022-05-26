@@ -1,7 +1,7 @@
 # Stuart
+Stuart is an MQTT broker based on [Eclipse Vert.x](https://vertx.io) and [Apache Ignite](https://ignite.apache.org) implementation.
 
-#### 介绍
-Stuart 是一个基于 [Eclipse Vert.x](https://vertx.io) 和 [Apache Ignite](https://ignite.apache.org) 实现的 MQTT 协议服务器，具备以下特性：
+#### 主要特性
 1. 支持 MQTT 3.1 和 MQTT 3.1.1
 2. 支持 QoS0，QoS1 和 QoS2
 3. 支持订阅包含通配符(+/#)的主题
@@ -16,13 +16,13 @@ Stuart 是一个基于 [Eclipse Vert.x](https://vertx.io) 和 [Apache Ignite](ht
 
 #### 安装教程
 1. 运行环境<br>
-   JDK：Oracle JDK 8 或 OpenJDK 8<br>
+   JDK：Oracle JDK 15 或 OpenJDK 15<br>
    操作系统：Linux、Mac OS X(10.6以上)、Windows(XP以上)、Windows Server(2008以上)<br>
-2. 下载 release 版本，使用如下命令直接运行：`java -jar stuart-0.1.0-fat.jar`<br>
-   运行后会在 stuart-0.1.0-fat.jar 文件的同级目录下创建 storage 和 log 两个目录，在未使用 --cfg 指定配置文件时，Stuart 将使用 jar 包中自带的 cfg.properties 进行启动<br>
-   如果想查看启动命令的具体参数，可以使用如下命令：`java -jar stuart-0.1.0-fat.jar -h`<br>
-3. 通过 maven 编译，使用 `git clone https://gitee.com/x87/stuart.git` 或 `git clone https://github.com/xyangwang/stuart.git` 命令，或者在 Stuart 项目页面直接下载源码，使用自己熟悉的 IDE 导入工程进行二次开发（需安装 lombok 插件），并使用 `mvn install` 命令编译打包。由于新增的 MQTT over WebSocket 功能修改了依赖包 `vertx-mqtt` 中的代码，如果需要自己编译，请同时到 `https://gitee.com/x87/vertx-mqtt.git` 或 `https://github.com/xyangwang/vertx-mqtt.git` 下载修改的依赖包，并 checkout `3.6` 分支代码
-4. 成功启动后，就可以使用 `mosquitto_sub` 和 `mosquitto_pub` 命令或者其他 Client Library 进行开发测试
+2. 下载 release 版本，使用如下命令直接运行：`java -jar stuart-1.0.0-fat.jar`<br>
+   运行后会在 stuart-1.0.0-fat.jar 文件的同级目录下创建 storage 和 log 两个目录，在未使用 --cfg 指定配置文件时，Stuart 将使用 jar 包中自带的 cfg.properties 进行启动<br>
+   如果想查看启动命令的具体参数，可以使用如下命令：`java -jar stuart-1.0.0-fat.jar -h`<br>
+3. 通过 maven 编译，使用 `mvn install` 命令编译打包
+4. 成功启动后，就可以使用 `mosquitto_sub` 和 `mosquitto_pub` 命令或者 MQTTX 客户端进行开发测试
 
 #### 系统架构
 1. 系统存储
@@ -283,8 +283,6 @@ zookeeper.reconnect.enable=true
 5. 备注：由于 Restful API 功能暂未开发，所以这部分只是静态界面
 
 #### License
-Copyright 2019 Yang Wang
- 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at

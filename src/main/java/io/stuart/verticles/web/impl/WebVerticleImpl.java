@@ -61,20 +61,20 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.auth.AuthProvider;
 import io.vertx.ext.auth.User;
+import io.vertx.ext.auth.authentication.AuthenticationProvider;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.Session;
-import io.vertx.ext.web.handler.AuthHandler;
+import io.vertx.ext.web.handler.AuthenticationHandler;
 import io.vertx.ext.web.handler.BasicAuthHandler;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.CookieHandler;
+import io.vertx.ext.web.handler.LoggerHandler;
 import io.vertx.ext.web.handler.RedirectAuthHandler;
+import io.vertx.ext.web.handler.ResponseTimeHandler;
 import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
-import io.vertx.ext.web.handler.UserSessionHandler;
 import io.vertx.ext.web.sstore.LocalSessionStore;
 
 public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
@@ -87,7 +87,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
 
     private CacheService cacheService;
 
-    private AuthProvider authProvider;
+    private AuthenticationProvider authProvider;
 
     private IgniteCallable<MqttSystemInfo> systemInfoCallable;
 
@@ -113,34 +113,28 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
     public void start() throws Exception {
         Logger.log().debug("Stuart's web verticle start...");
 
-        // initialize http options
-        HttpServerOptions options = new HttpServerOptions();
-
-        // set http options
-        options.setHost(Config.getInstanceListenAddr());
-        options.setPort(Config.getHttpPort());
-
-        // http server
-        HttpServer server = vertx.createHttpServer(options);
-        // router
-        Router router = Router.router(vertx);
-
         // authentication provider
         authProvider = LocalAuth.create(cacheService);
-        // redirect authentication handler
-        AuthHandler redirectAuthHandler = RedirectAuthHandler.create(authProvider, "/login.html");
-        // basic authentication handler
-        AuthHandler basicAuthHandler = BasicAuthHandler.create(authProvider);
 
-        // set cookie handler
-        router.route().handler(CookieHandler.create());
-        // set body handler
+        // router
+        Router router = Router.router(vertx);
+        router.errorHandler(404, rc -> {
+            rc.response().setStatusCode(404).sendFile("webroot/404.html");
+        });
+
+        router.route().handler(LoggerHandler.create()).handler(ResponseTimeHandler.create());
         router.route().handler(BodyHandler.create());
-        // set session handler
-        router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx, sessionMapName)).setSessionTimeout(Config.getVertxHttpSessionTimeoutMs()));
-        // set user session handler
-        router.route().handler(UserSessionHandler.create(authProvider));
 
+        // set session handler
+        router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx, sessionMapName))
+            .setSessionTimeout(Config.getVertxHttpSessionTimeoutMs()));
+
+        // redirect authentication handler
+        AuthenticationHandler redirectAuthHandler = RedirectAuthHandler.create(authProvider, "/login.html");
+        // basic authentication handler
+        AuthenticationHandler basicAuthHandler = BasicAuthHandler.create(authProvider);
+
+        // set body handler
         // set system url use redirect authentication handler
         router.route("/ui/*").handler(redirectAuthHandler);
         // set manage url use redirect authentication handler
@@ -148,10 +142,8 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         // set api url use basic authentication handler
         router.route("/api/*").handler(basicAuthHandler);
 
-        // set login handler
-        // router.route("/login").handler(FormLoginHandler.create(authProvider).setDirectLoggedInOKURL("/ui/page/index.html"));
-
-        Route login = mkRoute(router, HttpMethod.POST, "/login", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route login = mkRoute(router, HttpMethod.POST, "/login", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         login.handler(rc -> {
             login(rc);
         });
@@ -160,127 +152,152 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
             logout(rc);
         });
 
-        Route indexInit = mkRoute(router, HttpMethod.POST, "/sys/index/init", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route indexInit = mkRoute(router, HttpMethod.POST, "/sys/index/init", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         indexInit.handler(rc -> {
             initIndex(rc);
         });
 
-        Route consoleInfo = mkRoute(router, HttpMethod.POST, "/sys/console/info", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route consoleInfo = mkRoute(router, HttpMethod.POST, "/sys/console/info", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         consoleInfo.handler(rc -> {
             getSystemInfo(rc);
         });
 
-        Route consoleNodes = mkRoute(router, HttpMethod.POST, "/sys/console/nodes", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route consoleNodes = mkRoute(router, HttpMethod.POST, "/sys/console/nodes", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         consoleNodes.handler(rc -> {
             getNodeMetrics(rc);
         });
 
-        Route consoleMqtt = mkRoute(router, HttpMethod.POST, "/sys/console/mqtt", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route consoleMqtt = mkRoute(router, HttpMethod.POST, "/sys/console/mqtt", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         consoleMqtt.handler(rc -> {
             getMqttMetrics(rc);
         });
 
-        Route connGet = mkRoute(router, HttpMethod.POST, "/sys/connect/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route connGet = mkRoute(router, HttpMethod.POST, "/sys/connect/get", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         connGet.handler(rc -> {
             getConnections(rc);
         });
 
-        Route sessionGet = mkRoute(router, HttpMethod.POST, "/sys/session/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route sessionGet = mkRoute(router, HttpMethod.POST, "/sys/session/get", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         sessionGet.handler(rc -> {
             getSessions(rc);
         });
 
-        Route topicGet = mkRoute(router, HttpMethod.POST, "/sys/topic/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route topicGet = mkRoute(router, HttpMethod.POST, "/sys/topic/get", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         topicGet.handler(rc -> {
             getTopics(rc);
         });
 
-        Route subscribeGet = mkRoute(router, HttpMethod.POST, "/sys/sub/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route subscribeGet = mkRoute(router, HttpMethod.POST, "/sys/sub/get", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         subscribeGet.handler(rc -> {
             getSubscribes(rc);
         });
 
-        Route userAdd = mkRoute(router, HttpMethod.POST, "/sys/user/add", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route userAdd = mkRoute(router, HttpMethod.POST, "/sys/user/add", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         userAdd.handler(rc -> {
             addUser(rc);
         });
 
-        Route userDel = mkRoute(router, HttpMethod.POST, "/sys/user/delete", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route userDel = mkRoute(router, HttpMethod.POST, "/sys/user/delete", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         userDel.handler(rc -> {
             deleteUser(rc);
         });
 
-        Route userUpdate = mkRoute(router, HttpMethod.POST, "/sys/user/update", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route userUpdate = mkRoute(router, HttpMethod.POST, "/sys/user/update", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         userUpdate.handler(rc -> {
             updateUser(rc);
         });
 
-        Route userGet = mkRoute(router, HttpMethod.POST, "/sys/user/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route userGet = mkRoute(router, HttpMethod.POST, "/sys/user/get", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         userGet.handler(rc -> {
             getUsers(rc);
         });
 
-        Route aclAdd = mkRoute(router, HttpMethod.POST, "/sys/acl/add", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route aclAdd = mkRoute(router, HttpMethod.POST, "/sys/acl/add", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         aclAdd.handler(rc -> {
             addAcl(rc);
         });
 
-        Route aclDel = mkRoute(router, HttpMethod.POST, "/sys/acl/delete", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route aclDel = mkRoute(router, HttpMethod.POST, "/sys/acl/delete", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         aclDel.handler(rc -> {
             deleteAcl(rc);
         });
 
-        Route aclUpdate = mkRoute(router, HttpMethod.POST, "/sys/acl/update", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route aclUpdate = mkRoute(router, HttpMethod.POST, "/sys/acl/update", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         aclUpdate.handler(rc -> {
             updateAcl(rc);
         });
 
-        Route aclReorder = mkRoute(router, HttpMethod.POST, "/sys/acl/reorder", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route aclReorder = mkRoute(router, HttpMethod.POST, "/sys/acl/reorder", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         aclReorder.handler(rc -> {
             reorderAcls(rc);
         });
 
-        Route aclGet = mkRoute(router, HttpMethod.POST, "/sys/acl/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route aclGet = mkRoute(router, HttpMethod.POST, "/sys/acl/get", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         aclGet.handler(rc -> {
             getAcls(rc);
         });
 
-        Route listenerGet = mkRoute(router, HttpMethod.POST, "/sys/listener/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route listenerGet = mkRoute(router, HttpMethod.POST, "/sys/listener/get", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         listenerGet.handler(rc -> {
             getListeners(rc);
         });
 
-        Route adminAdd = mkRoute(router, HttpMethod.POST, "/sys/admin/add", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route adminAdd = mkRoute(router, HttpMethod.POST, "/sys/admin/add", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         adminAdd.handler(rc -> {
             addAdmin(rc);
         });
 
-        Route adminDel = mkRoute(router, HttpMethod.POST, "/sys/admin/delete", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route adminDel = mkRoute(router, HttpMethod.POST, "/sys/admin/delete", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         adminDel.handler(rc -> {
             deleteAdmin(rc);
         });
 
-        Route adminUpdate = mkRoute(router, HttpMethod.POST, "/sys/admin/update", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route adminUpdate = mkRoute(router, HttpMethod.POST, "/sys/admin/update", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         adminUpdate.handler(rc -> {
             updateAdmin(rc);
         });
 
-        Route adminGet = mkRoute(router, HttpMethod.POST, "/sys/admin/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON);
+        Route adminGet = mkRoute(router, HttpMethod.POST, "/sys/admin/get", HttpConst.APPLICATION_JSON,
+            HttpConst.APPLICATION_JSON);
         adminGet.handler(rc -> {
             getAdmins(rc);
         });
 
         // set static handler
-        router.route().handler(StaticHandler.create().setCachingEnabled(false).setIndexPage("/login.html"));
+        router.route().handler(StaticHandler.create().setCachingEnabled(true).setIndexPage("/login.html"));
 
-        // set 404 handler
-        router.route().handler(rc -> {
-            rc.response().setStatusCode(404).sendFile("webroot/404.html");
-        });
-
+        // initialize http options
+        HttpServerOptions options = new HttpServerOptions();
+        // set http options
+        options.setHost(Config.getInstanceListenAddr());
+        options.setPort(Config.getHttpPort());
+        // http server
+        HttpServer server = vertx.createHttpServer(options);
         server.requestHandler(router).listen(ar -> {
             if (ar.succeeded()) {
-                Logger.log().debug("Stuart's web verticle start succeeded, the verticle listen at port {}.", Config.getHttpPort());
+                Logger.log().debug("Stuart's web verticle start succeeded, the verticle listen at port {}.",
+                    Config.getHttpPort());
             } else {
                 Logger.log().error("Stuart's web verticle start failed, excpetion: {}.", ar.cause().getMessage());
             }
@@ -304,7 +321,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
 
         try {
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             String username = body.getString("username");
             String password = body.getString("password");
@@ -559,7 +576,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
             // get node id
             UUID nodeId = getRequestNodeId(rc);
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             String clientId = body.getString("clientId");
             Integer pageNum = body.getInteger("pageNum");
@@ -606,7 +623,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
             // get node id
             UUID nodeId = getRequestNodeId(rc);
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             String clientId = body.getString("clientId");
             Integer pageNum = body.getInteger("pageNum");
@@ -644,7 +661,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
     public void getTopics(RoutingContext rc) {
         try {
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             String topic = body.getString("topic");
             Integer pageNum = body.getInteger("pageNum");
@@ -707,7 +724,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
             // get node id
             UUID nodeId = getRequestNodeId(rc);
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             String clientId = body.getString("clientId");
             Integer pageNum = body.getInteger("pageNum");
@@ -744,7 +761,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
             // get node id
             UUID nodeId = getRequestNodeId(rc);
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             if (cacheService.isLocalAuth(nodeId)) {
                 // get session account
@@ -787,7 +804,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
             // get node id
             UUID nodeId = getRequestNodeId(rc);
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             if (cacheService.isLocalAuth(nodeId)) {
                 // get username
@@ -821,7 +838,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
             // get node id
             UUID nodeId = getRequestNodeId(rc);
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             if (cacheService.isLocalAuth(nodeId)) {
                 // get session account
@@ -843,7 +860,8 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
                 JsonObject json = new JsonObject();
 
                 json.put(HttpConst.CODE, HttpConst.PROCESSED_CODE);
-                json.put(HttpConst.RESULT, cacheService.updateUser(user, account == null ? "" : account.toString(), adminPasswd));
+                json.put(HttpConst.RESULT,
+                    cacheService.updateUser(user, account == null ? "" : account.toString(), adminPasswd));
 
                 writeJsonResponse(rc, json);
             } else {
@@ -867,7 +885,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
             // get node id
             UUID nodeId = getRequestNodeId(rc);
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             if (cacheService.isLocalAuth(nodeId)) {
                 String username = body.getString("username");
@@ -908,7 +926,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
             // get node id
             UUID nodeId = getRequestNodeId(rc);
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             if (cacheService.isLocalAuth(nodeId)) {
                 // get session account
@@ -965,7 +983,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
             // get node id
             UUID nodeId = getRequestNodeId(rc);
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             if (cacheService.isLocalAuth(nodeId)) {
                 Long seq = body.getLong("seq");
@@ -998,7 +1016,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
             // get node id
             UUID nodeId = getRequestNodeId(rc);
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             if (cacheService.isLocalAuth(nodeId)) {
                 // get session account
@@ -1057,7 +1075,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
             // get node id
             UUID nodeId = getRequestNodeId(rc);
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             if (cacheService.isLocalAuth(nodeId)) {
                 // get session account object
@@ -1211,7 +1229,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
 
         try {
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             // get session account
             Object account = rc.session().data().get(sessionAccount);
@@ -1243,7 +1261,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
 
         try {
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             String account = body.getString("account");
 
@@ -1265,7 +1283,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
 
         try {
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             String oldPasswd = body.getString("oldPasswd");
             String newPasswd = body.getString("newPasswd");
@@ -1299,7 +1317,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
 
         try {
             // get request body
-            JsonObject body = rc.getBodyAsJson();
+            JsonObject body = rc.body().asJsonObject();
 
             String account = body.getString("account");
             Integer pageNum = body.getInteger("pageNum");
@@ -1325,13 +1343,23 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         route.consumes(consumes);
         route.produces(produces);
 
+//        if (hasBody(method)) {
+//            route.handler(BodyHandler.create());
+//        }
+
         return route;
+    }
+
+    private boolean hasBody(HttpMethod method) {
+        return method == HttpMethod.POST || method == HttpMethod.PUT || method == HttpMethod.DELETE
+                || method == HttpMethod.PATCH || method == HttpMethod.TRACE;
     }
 
     private UUID getRequestNodeId(RoutingContext rc) {
         String nodeId = rc.request().headers().get(HttpConst.PARAM_NODE_ID);
 
-        Logger.log().debug("node : {} - get request headers, and 'paramNodeId' in headers is {}.", cacheService.localNodeId(), nodeId);
+        Logger.log().debug("node : {} - get request headers, and 'paramNodeId' in headers is {}.",
+            cacheService.localNodeId(), nodeId);
 
         if (StringUtils.isBlank(nodeId)) {
             return null;
@@ -1384,7 +1412,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         HttpServerResponse response = rc.response();
         response.putHeader(HttpConst.CONTENT_TYPE, HttpConst.APPLICATION_JSON);
         response.putHeader(HttpConst.CONTENT_LENGTH, String.valueOf(result.length()));
-        response.write(result).end();
+        response.end(result);
     }
 
     private void writeJsonResponse(RoutingContext rc, JsonObject json) {
@@ -1396,7 +1424,7 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         HttpServerResponse response = rc.response();
         response.putHeader(HttpConst.CONTENT_TYPE, HttpConst.APPLICATION_JSON);
         response.putHeader(HttpConst.CONTENT_LENGTH, String.valueOf(bytes.length));
-        response.write(result).end();
+        response.end(result);
     }
 
 }

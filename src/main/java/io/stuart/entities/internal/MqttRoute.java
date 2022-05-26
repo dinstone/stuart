@@ -19,11 +19,6 @@ package io.stuart.entities.internal;
 import java.io.Serializable;
 import java.util.UUID;
 
-import lombok.Data;
-import lombok.ToString;
-
-@Data
-@ToString
 public class MqttRoute implements Serializable {
 
     private static final long serialVersionUID = -953459924280313158L;
@@ -34,35 +29,28 @@ public class MqttRoute implements Serializable {
 
     private int qos;
 
-    
     public UUID getNodeId() {
         return nodeId;
     }
 
-    
     public void setNodeId(UUID nodeId) {
         this.nodeId = nodeId;
     }
 
-    
     public String getClientId() {
         return clientId;
     }
 
-    
     public void setClientId(String clientId) {
         this.clientId = clientId;
     }
 
-    
     public int getQos() {
         return qos;
     }
 
-    
     public void setQos(int qos) {
         this.qos = qos;
     }
 
-    
 }

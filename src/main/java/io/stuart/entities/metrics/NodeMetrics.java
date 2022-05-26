@@ -19,38 +19,26 @@ package io.stuart.entities.metrics;
 import java.io.Serializable;
 import java.util.concurrent.atomic.LongAdder;
 
-import lombok.Getter;
-import lombok.ToString;
-
-@ToString
 public class NodeMetrics implements Serializable {
 
     private static final long serialVersionUID = 3853125081633439170L;
 
     private static volatile NodeMetrics instance;
 
-    @Getter
     private LongAdder connCount;
 
-    @Getter
     private LongAdder connMax;
 
-    @Getter
     private LongAdder topicCount;
 
-    @Getter
     private LongAdder topicMax;
 
-    @Getter
     private LongAdder sessCount;
 
-    @Getter
     private LongAdder sessMax;
 
-    @Getter
     private LongAdder subCount;
 
-    @Getter
     private LongAdder subMax;
 
     private NodeMetrics() {

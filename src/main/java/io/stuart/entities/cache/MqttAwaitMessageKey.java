@@ -18,11 +18,6 @@ package io.stuart.entities.cache;
 
 import java.io.Serializable;
 
-import lombok.Data;
-import lombok.ToString;
-
-@Data
-@ToString
 public class MqttAwaitMessageKey implements Serializable {
 
     private static final long serialVersionUID = -6479329730092981457L;

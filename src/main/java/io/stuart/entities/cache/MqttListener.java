@@ -20,15 +20,10 @@ import java.io.Serializable;
 
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
-import lombok.Data;
-import lombok.ToString;
-
 /**
  * protocol => AbstractMqttVerticle.protocol <BR/>
  * addressAndPort => AbstractMqttVerticle.listener
  */
-@Data
-@ToString
 public class MqttListener implements Serializable {
 
     private static final long serialVersionUID = 8907305770392418501L;
@@ -43,46 +38,36 @@ public class MqttListener implements Serializable {
 
     private int connCount;
 
-    
     public String getProtocol() {
         return protocol;
     }
 
-    
     public void setProtocol(String protocol) {
         this.protocol = protocol;
     }
 
-    
     public String getAddressAndPort() {
         return addressAndPort;
     }
 
-    
     public void setAddressAndPort(String addressAndPort) {
         this.addressAndPort = addressAndPort;
     }
 
-    
     public int getConnMaxLimit() {
         return connMaxLimit;
     }
 
-    
     public void setConnMaxLimit(int connMaxLimit) {
         this.connMaxLimit = connMaxLimit;
     }
 
-    
     public int getConnCount() {
         return connCount;
     }
 
-    
     public void setConnCount(int connCount) {
         this.connCount = connCount;
     }
-    
-    
 
 }

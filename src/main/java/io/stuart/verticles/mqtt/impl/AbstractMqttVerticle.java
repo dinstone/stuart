@@ -49,6 +49,7 @@ import io.stuart.utils.MsgUtil;
 import io.stuart.utils.TopicUtil;
 import io.stuart.verticles.mqtt.MqttVerticle;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.mqtt.MqttAuth;
 import io.vertx.mqtt.MqttEndpoint;
@@ -411,7 +412,8 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
 
         // 1.metrics: mqtt 'PUBREC' received count + 1
         // 2.metrics: mqtt 'PUBREL' sent count + 1
-        MetricsService.i().record(MetricsConst.PN_SM_PACKET_PUBREC_RECEIVED, 1, MetricsConst.PN_SM_PACKET_PUBREL_SENT, 1);
+        MetricsService.i().record(MetricsConst.PN_SM_PACKET_PUBREC_RECEIVED, 1, MetricsConst.PN_SM_PACKET_PUBREL_SENT,
+            1);
     }
 
     @Override
@@ -514,8 +516,7 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         }
 
         // get will message content
-        String payload = will.getWillMessage();
-
+        Buffer payload = will.getWillMessage();
         if (payload == null || payload.length() == 0) {
             // delete will message
             cacheService.deleteWill(clientId, true);
@@ -609,7 +610,8 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
             // save connection
             cacheService.saveConnection(conn);
 
-            Logger.log().debug("node : {} - listen address {} after save mqtt connection, the connection count is {}", thisNodeId, listener, getConnCount());
+            Logger.log().debug("node : {} - listen address {} after save mqtt connection, the connection count is {}",
+                thisNodeId, listener, getConnCount());
         } finally {
             // unlock it
             lock.unlock();
@@ -642,8 +644,9 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
                 // metrics: node connection count - 1
                 MetricsService.i().record(MetricsConst.PN_SM_CONN_COUNT, -1);
 
-                Logger.log().debug("node : {} - listen address {} after delete mqtt connection, the connection count is {}", thisNodeId, listener,
-                        getConnCount());
+                Logger.log().debug(
+                    "node : {} - listen address {} after delete mqtt connection, the connection count is {}",
+                    thisNodeId, listener, getConnCount());
             }
         } finally {
             // unlock it
@@ -777,19 +780,20 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
             handleLocalPublishMessage(route, message);
         } else {
             // send mqtt message tuple to remote node
-            eventBus.send(EventConst.CLS_PUBLISH_TOPIC_PREFIX + nodeId.toString(), new MqttMessageTuple(route, message), ar -> {
-                // if send failed, check the session is persistent
-                if (ar.failed() && cacheService.isPersistentSession(clientId)) {
-                    vertx.executeBlocking(future -> {
-                        // enqueue
-                        cacheService.enqueue(message, clientId, qos);
-                        // complete execute blocking code
-                        future.complete();
-                    }, false, result -> {
-                        // do nothing...
-                    });
-                }
-            });
+            eventBus.request(EventConst.CLS_PUBLISH_TOPIC_PREFIX + nodeId.toString(),
+                new MqttMessageTuple(route, message), ar -> {
+                    // if send failed, check the session is persistent
+                    if (ar.failed() && cacheService.isPersistentSession(clientId)) {
+                        vertx.executeBlocking(future -> {
+                            // enqueue
+                            cacheService.enqueue(message, clientId, qos);
+                            // complete execute blocking code
+                            future.complete();
+                        }, false, result -> {
+                            // do nothing...
+                        });
+                    }
+                });
         }
     }
 

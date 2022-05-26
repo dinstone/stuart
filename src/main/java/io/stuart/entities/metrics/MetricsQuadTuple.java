@@ -19,11 +19,6 @@ package io.stuart.entities.metrics;
 import java.io.Serializable;
 import java.util.function.Function;
 
-import lombok.Data;
-import lombok.ToString;
-
-@Data
-@ToString
 public class MetricsQuadTuple implements Serializable {
 
     private static final long serialVersionUID = 499998216453755534L;

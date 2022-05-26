@@ -17,7 +17,6 @@
 package io.stuart.services.auth.impl;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
@@ -33,15 +32,17 @@ import io.stuart.utils.AuthUtil;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
-import io.vertx.redis.RedisClient;
-import io.vertx.redis.RedisOptions;
+import io.vertx.redis.client.Redis;
+import io.vertx.redis.client.RedisAPI;
+import io.vertx.redis.client.RedisClientType;
+import io.vertx.redis.client.RedisOptions;
+import io.vertx.redis.client.Response;
 
 public class RedisAuthServiceImpl implements AuthService {
 
     private Vertx vertx;
 
-    private RedisClient redis;
+    private RedisAPI redis;
 
     public RedisAuthServiceImpl(Vertx vertx) {
         this.vertx = vertx;
@@ -51,18 +52,16 @@ public class RedisAuthServiceImpl implements AuthService {
     public void start() {
         Logger.log().info("Stuart's redis authentication service is starting...");
 
-        RedisOptions cfg = new RedisOptions();
-
-        cfg.setHost(Config.getAuthRedisHost());
-        cfg.setPort(Config.getAuthRedisPort());
-        cfg.setSelect(Config.getAuthRedisSelect());
-        cfg.setBinary(false);
+        RedisOptions ops = new RedisOptions()
+            .setType(RedisClientType.STANDALONE).addConnectionString("redis://" + Config.getAuthRedisHost() + ":"
+                    + Config.getAuthRedisPort() + "/" + Config.getAuthRedisSelect())
+            .setMaxPoolSize(4).setMaxPoolWaiting(16);
 
         if (StringUtils.isNotBlank(Config.getAuthRedisPass())) {
-            cfg.setAuth(Config.getAuthRedisPass());
+            ops.setPassword(Config.getAuthRedisPass());
         }
 
-        redis = RedisClient.create(vertx, cfg);
+        redis = RedisAPI.api(Redis.createClient(vertx, ops));
 
         Logger.log().info("Stuart's redis authentication service start succeeded.");
     }
@@ -73,13 +72,9 @@ public class RedisAuthServiceImpl implements AuthService {
             return;
         }
 
-        redis.close(ar -> {
-            if (ar.succeeded()) {
-                Logger.log().info("Stuart's redis authentication service close succeeded.");
-            } else {
-                Logger.log().error("Stuart's redis authentication service close failed, exception: {}.", ar.cause().getMessage());
-            }
-        });
+        redis.close();
+
+        Logger.log().info("Stuart's redis authentication service close succeeded.");
     }
 
     @Override
@@ -91,7 +86,7 @@ public class RedisAuthServiceImpl implements AuthService {
             String enPasswd = Config.getAes().encryptBase64(password);
 
             redis.hget(queryKey, Config.getAuthRedisPasswdField(), ar -> {
-                if (ar.succeeded() && enPasswd.equals(ar.result())) {
+                if (ar.succeeded() && enPasswd.equals(ar.result().toString())) {
                     handler.apply(true);
                 } else {
                     handler.apply(false);
@@ -101,25 +96,21 @@ public class RedisAuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void access(String username, String ipAddr, String clientId, final List<MqttAuthority> auths, Function<List<MqttAuthority>, Void> handler) {
+    public void access(String username, String ipAddr, String clientId, final List<MqttAuthority> auths,
+            Function<List<MqttAuthority>, Void> handler) {
         String userKey = transform2Key(username, Target.Username);
         String ipAddrKey = transform2Key(ipAddr, Target.IpAddr);
         String clientKey = transform2Key(clientId, Target.ClientId);
         String allKey = transform2Key(AclConst.ALL, Target.All);
 
-        Future<JsonObject> userFut = Future.future();
-        Future<JsonObject> ipAddrFut = Future.future();
-        Future<JsonObject> clientFut = Future.future();
-        Future<JsonObject> allFut = Future.future();
+        Future<Response> userFut = redis.hgetall(userKey);
+        Future<Response> ipAddrFut = redis.hgetall(ipAddrKey);
+        Future<Response> clientFut = redis.hgetall(clientKey);
+        Future<Response> allFut = redis.hgetall(allKey);
 
-        redis.hgetall(userKey, userFut.completer());
-        redis.hgetall(ipAddrKey, ipAddrFut.completer());
-        redis.hgetall(clientKey, clientFut.completer());
-        redis.hgetall(allKey, allFut.completer());
-
-        CompositeFuture.join(userFut, ipAddrFut, clientFut, allFut).setHandler(ar -> {
+        CompositeFuture.join(userFut, ipAddrFut, clientFut, allFut).onComplete(ar -> {
             if (ar.succeeded()) {
-                setAuthority(auths, ar.result().<JsonObject>list());
+                setAuthority(auths, ar.result().list());
             }
 
             handler.apply(auths);
@@ -127,25 +118,21 @@ public class RedisAuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void access(String username, String ipAddr, String clientId, final MqttAuthority auth, Function<MqttAuthority, Void> handler) {
+    public void access(String username, String ipAddr, String clientId, final MqttAuthority auth,
+            Function<MqttAuthority, Void> handler) {
         String userKey = transform2Key(username, Target.Username);
         String ipAddrKey = transform2Key(ipAddr, Target.IpAddr);
         String clientKey = transform2Key(clientId, Target.ClientId);
         String allKey = transform2Key(AclConst.ALL, Target.All);
 
-        Future<JsonObject> userFut = Future.future();
-        Future<JsonObject> ipAddrFut = Future.future();
-        Future<JsonObject> clientFut = Future.future();
-        Future<JsonObject> allFut = Future.future();
+        Future<Response> userFut = redis.hgetall(userKey);
+        Future<Response> ipAddrFut = redis.hgetall(ipAddrKey);
+        Future<Response> clientFut = redis.hgetall(clientKey);
+        Future<Response> allFut = redis.hgetall(allKey);
 
-        redis.hgetall(userKey, userFut.completer());
-        redis.hgetall(ipAddrKey, ipAddrFut.completer());
-        redis.hgetall(clientKey, clientFut.completer());
-        redis.hgetall(allKey, allFut.completer());
-
-        CompositeFuture.join(userFut, ipAddrFut, clientFut, allFut).setHandler(ar -> {
+        CompositeFuture.join(userFut, ipAddrFut, clientFut, allFut).onComplete(ar -> {
             if (ar.succeeded()) {
-                setAuthority(auth, ar.result().<JsonObject>list());
+                setAuthority(auth, ar.result().list());
             }
 
             handler.apply(auth);
@@ -168,7 +155,7 @@ public class RedisAuthServiceImpl implements AuthService {
         return prefix + target;
     }
 
-    private void setAuthority(final List<MqttAuthority> auths, List<JsonObject> rs) {
+    private void setAuthority(final List<MqttAuthority> auths, List<Response> rs) {
         if (rs == null || rs.isEmpty()) {
             return;
         }
@@ -184,7 +171,7 @@ public class RedisAuthServiceImpl implements AuthService {
         }
     }
 
-    private void setAuthority(final MqttAuthority auth, List<JsonObject> rs) {
+    private void setAuthority(final MqttAuthority auth, List<Response> rs) {
         if (rs == null || rs.isEmpty()) {
             return;
         }
@@ -194,13 +181,13 @@ public class RedisAuthServiceImpl implements AuthService {
         // transformed authority from MySQL
         MqttAuthority transformed = null;
 
-        for (JsonObject res : rs) {
+        for (Response res : rs) {
             // loop
-            for (Map.Entry<String, Object> entry : res) {
+            for (String key : res.getKeys()) {
                 // if matched
-                if (AuthUtil.isMatch(topic, entry.getKey())) {
+                if (AuthUtil.isMatch(topic, key)) {
                     // get transformed authority
-                    transformed = AuthUtil.transform2Authority(entry.getValue().toString());
+                    transformed = AuthUtil.transform2Authority(res.get(key).toString());
 
                     // set access
                     auth.setAccess(transformed.getAccess());

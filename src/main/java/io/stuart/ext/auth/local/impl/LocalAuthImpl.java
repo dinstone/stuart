@@ -23,10 +23,10 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.auth.AuthProvider;
 import io.vertx.ext.auth.User;
+import io.vertx.ext.auth.authentication.AuthenticationProvider;
 
-public class LocalAuthImpl implements AuthProvider, LocalAuth {
+public class LocalAuthImpl implements AuthenticationProvider, LocalAuth {
 
     private CacheService cacheService;
 
@@ -55,7 +55,7 @@ public class LocalAuthImpl implements AuthProvider, LocalAuth {
         admin.setPassword(password);
 
         if (cacheService.login(admin)) {
-            resultHandler.handle(Future.succeededFuture(new LocalUser(this, username)));
+            resultHandler.handle(Future.succeededFuture(User.fromName(username)));
         } else {
             resultHandler.handle(Future.failedFuture("no such username, or password incorrect."));
         }

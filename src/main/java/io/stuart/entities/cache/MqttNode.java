@@ -22,14 +22,9 @@ import java.util.UUID;
 import org.apache.ignite.cache.query.annotations.QueryGroupIndex;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
-import lombok.Data;
-import lombok.ToString;
-
 /**
  * listenAddr => Config.getInstanceListenAddr()
  */
-@Data
-@ToString
 @QueryGroupIndex(name = "mqtt_node_idx", inlineSize = -1)
 public class MqttNode implements Serializable {
 

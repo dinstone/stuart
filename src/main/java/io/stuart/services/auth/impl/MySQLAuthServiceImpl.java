@@ -30,11 +30,14 @@ import io.stuart.log.Logger;
 import io.stuart.services.auth.AuthService;
 import io.stuart.utils.AuthUtil;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.asyncsql.AsyncSQLClient;
-import io.vertx.ext.asyncsql.MySQLClient;
-import io.vertx.ext.sql.ResultSet;
+import io.vertx.mysqlclient.MySQLConnectOptions;
+import io.vertx.mysqlclient.MySQLPool;
+import io.vertx.sqlclient.PoolOptions;
+import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.RowSet;
+import io.vertx.sqlclient.SqlClient;
+import io.vertx.sqlclient.Tuple;
 
 public class MySQLAuthServiceImpl implements AuthService {
 
@@ -42,7 +45,7 @@ public class MySQLAuthServiceImpl implements AuthService {
 
     private Vertx vertx;
 
-    private AsyncSQLClient mysql;
+    private SqlClient mysql;
 
     static {
         queryAcl = queryAcl();
@@ -78,7 +81,15 @@ public class MySQLAuthServiceImpl implements AuthService {
         config.put("maxPoolSize", Config.getAuthRdbMaxPoolSize());
         config.put("queryTimeout", Config.getAuthRdbQueryTimeoutMs());
 
-        mysql = MySQLClient.createShared(vertx, config);
+        MySQLConnectOptions connectOptions = new MySQLConnectOptions().setPort(Config.getAuthRdbPort())
+            .setHost(Config.getAuthRdbHost()).setDatabase(Config.getAuthRdbDatabase())
+            .setCharset(Config.getAuthRdbCharset()).setUser(Config.getAuthRdbUsername())
+            .setPassword(Config.getAuthRdbPassword()).setConnectTimeout(1000);
+
+        // Pool options
+        PoolOptions poolOptions = new PoolOptions().setMaxSize(Config.getAuthRdbMaxPoolSize());
+
+        mysql = MySQLPool.client(vertx, connectOptions, poolOptions);
 
         Logger.log().info("Stuart's mysql authentication service start succeeded.");
     }
@@ -93,7 +104,8 @@ public class MySQLAuthServiceImpl implements AuthService {
             if (ar.succeeded()) {
                 Logger.log().info("Stuart's mysql authentication service close succeeded.");
             } else {
-                Logger.log().error("Stuart's mysql authentication service close failed, exception: {}.", ar.cause().getMessage());
+                Logger.log().error("Stuart's mysql authentication service close failed, exception: {}.",
+                    ar.cause().getMessage());
             }
         });
     }
@@ -104,31 +116,24 @@ public class MySQLAuthServiceImpl implements AuthService {
             handler.apply(false);
         } else {
             String sql = "select password from stuart_user where username = ?";
-            JsonArray args = new JsonArray().add(username);
-
-            mysql.queryWithParams(sql, args, ar -> {
-                if (ar.succeeded() && passwdEquals(password, ar.result())) {
+            mysql.preparedQuery(sql).execute(Tuple.of(username)).onSuccess(rs -> {
+                if (passwdEquals(password, rs)) {
                     handler.apply(true);
                 } else {
                     handler.apply(false);
                 }
-            });
+            }).onFailure(e -> handler.apply(false));
         }
     }
 
     @Override
-    public void access(String username, String ipAddr, String clientId, final List<MqttAuthority> auths, Function<List<MqttAuthority>, Void> handler) {
-        JsonArray args = new JsonArray();
-        args.add(username);
-        args.add(Target.Username.value());
-        args.add(ipAddr);
-        args.add(Target.IpAddr.value());
-        args.add(clientId);
-        args.add(Target.ClientId.value());
-        args.add(AclConst.ALL);
-        args.add(Target.All.value());
+    public void access(String username, String ipAddr, String clientId, final List<MqttAuthority> auths,
+            Function<List<MqttAuthority>, Void> handler) {
+        Tuple t = Tuple
+            .of(username, Target.Username.value(), ipAddr, Target.IpAddr.value(), clientId, Target.ClientId.value())
+            .addValue(AclConst.ALL).addValue(Target.All.value());
 
-        mysql.queryWithParams(queryAcl, args, ar -> {
+        mysql.preparedQuery(queryAcl).execute(t).onComplete(ar -> {
             if (ar.succeeded()) {
                 setAuthority(auths, ar.result());
             }
@@ -138,18 +143,13 @@ public class MySQLAuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void access(String username, String ipAddr, String clientId, final MqttAuthority auth, Function<MqttAuthority, Void> handler) {
-        JsonArray args = new JsonArray();
-        args.add(username);
-        args.add(Target.Username.value());
-        args.add(ipAddr);
-        args.add(Target.IpAddr.value());
-        args.add(clientId);
-        args.add(Target.ClientId.value());
-        args.add(AclConst.ALL);
-        args.add(Target.All.value());
+    public void access(String username, String ipAddr, String clientId, final MqttAuthority auth,
+            Function<MqttAuthority, Void> handler) {
+        Tuple t = Tuple
+            .of(username, Target.Username.value(), ipAddr, Target.IpAddr.value(), clientId, Target.ClientId.value())
+            .addValue(AclConst.ALL).addValue(Target.All.value());
 
-        mysql.queryWithParams(queryAcl, args, ar -> {
+        mysql.preparedQuery(queryAcl).execute(t).onComplete(ar -> {
             if (ar.succeeded()) {
                 setAuthority(auth, ar.result());
             }
@@ -158,35 +158,26 @@ public class MySQLAuthServiceImpl implements AuthService {
         });
     }
 
-    private boolean passwdEquals(String password, ResultSet rs) {
-        if (rs == null) {
-            return false;
-        }
-
-        List<JsonArray> results = rs.getResults();
-
-        if (results == null || results.isEmpty()) {
+    private boolean passwdEquals(String password, RowSet<Row> rs) {
+        if (rs == null || rs.rowCount() == 0) {
             return false;
         }
 
         String enPasswd = Config.getAes().encryptBase64(password);
-        String qyPasswd = results.get(0).getString(0);
-
-        if (qyPasswd != null && enPasswd.equals(qyPasswd)) {
-            return true;
-        } else {
-            return false;
+        for (Row row : rs) {
+            String qyPasswd = row.getString(0);
+            if (qyPasswd != null && enPasswd.equals(qyPasswd)) {
+                return true;
+            } else {
+                return false;
+            }
         }
+
+        return false;
     }
 
-    private void setAuthority(final List<MqttAuthority> auths, ResultSet rs) {
-        if (rs == null) {
-            return;
-        }
-
-        List<JsonArray> acls = rs.getResults();
-
-        if (acls == null || acls.isEmpty()) {
+    private void setAuthority(final List<MqttAuthority> auths, RowSet<Row> rowSet) {
+        if (rowSet == null || rowSet.rowCount() == 0) {
             return;
         }
 
@@ -198,27 +189,17 @@ public class MySQLAuthServiceImpl implements AuthService {
             }
 
             // set access and authority
-            setAuthority(auth, rs);
+            setAuthority(auth, rowSet);
         }
     }
 
-    private void setAuthority(final MqttAuthority auth, ResultSet rs) {
-        if (rs == null) {
-            return;
-        }
-
-        List<JsonArray> acls = rs.getResults();
-
-        if (acls == null || acls.isEmpty()) {
-            return;
-        }
-
+    private void setAuthority(final MqttAuthority auth, RowSet<Row> rs) {
         // get topic
         String topic = auth.getTopic();
         // transformed authority from MySQL
         MqttAuthority transformed = null;
 
-        for (JsonArray acl : acls) {
+        for (Row acl : rs) {
             // is match
             if (AuthUtil.isMatch(topic, acl.getString(0))) {
                 // get transformed authority

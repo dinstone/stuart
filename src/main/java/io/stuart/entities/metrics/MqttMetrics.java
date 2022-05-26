@@ -19,122 +19,86 @@ package io.stuart.entities.metrics;
 import java.io.Serializable;
 import java.util.concurrent.atomic.LongAdder;
 
-import lombok.Getter;
-import lombok.ToString;
-
-@ToString
 public class MqttMetrics implements Serializable {
 
     private static final long serialVersionUID = 7602482777448548414L;
 
     private static volatile MqttMetrics instance;
 
-    // @Getter
+    //
     // private LongAdder packetReceived;
 
-    // @Getter
+    //
     // private LongAdder packetSent;
 
-    @Getter
     private LongAdder packetConnect;
 
-    @Getter
     private LongAdder packetConnack;
 
-    @Getter
     private LongAdder packetDisconnect;
 
-    @Getter
     private LongAdder packetPingreq;
 
-    @Getter
     private LongAdder packetPingresp;
 
-    @Getter
     private LongAdder packetPublishReceived;
 
-    @Getter
     private LongAdder packetPublishSent;
 
-    @Getter
     private LongAdder packetPubackReceived;
 
-    @Getter
     private LongAdder packetPubackSent;
 
-    @Getter
     private LongAdder packetPubackMissed;
 
-    @Getter
     private LongAdder packetPubcompReceived;
 
-    @Getter
     private LongAdder packetPubcompSent;
 
-    @Getter
     private LongAdder packetPubcompMissed;
 
-    @Getter
     private LongAdder packetPubrecReceived;
 
-    @Getter
     private LongAdder packetPubrecSent;
 
-    @Getter
     private LongAdder packetPubrecMissed;
 
-    @Getter
     private LongAdder packetPubrelReceived;
 
-    @Getter
     private LongAdder packetPubrelSent;
 
-    @Getter
     private LongAdder packetPubrelMissed;
 
-    @Getter
     private LongAdder packetSubscribe;
 
-    @Getter
     private LongAdder packetSuback;
 
-    @Getter
     private LongAdder packetUnsubscribe;
 
-    @Getter
     private LongAdder packetUnsuback;
 
-    // @Getter
+    //
     // private LongAdder messageReceived;
 
-    // @Getter
+    //
     // private LongAdder messageSent;
 
-    @Getter
     private LongAdder messageDropped;
 
-    @Getter
     private LongAdder messageQos0Received;
 
-    @Getter
     private LongAdder messageQos0Sent;
 
-    @Getter
     private LongAdder messageQos1Received;
 
-    @Getter
     private LongAdder messageQos1Sent;
 
-    @Getter
     private LongAdder messageQos2Received;
 
-    @Getter
     private LongAdder messageQos2Sent;
 
-    @Getter
     private LongAdder byteReceived;
 
-    @Getter
     private LongAdder byteSent;
 
     private MqttMetrics() {

@@ -20,15 +20,10 @@ import java.io.Serializable;
 
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
-import lombok.Data;
-import lombok.ToString;
-
 /**
  * listener => address:port <BR/>
  * listener => MqttListener.addressAndPort
  */
-@Data
-@ToString
 public class MqttConnection implements Serializable {
 
     private static final long serialVersionUID = -4529461224698101060L;

@@ -21,11 +21,6 @@ import java.io.Serializable;
 import org.apache.ignite.cache.query.annotations.QueryGroupIndex;
 import org.apache.ignite.cache.query.annotations.QuerySqlField;
 
-import lombok.Data;
-import lombok.ToString;
-
-@Data
-@ToString
 @QueryGroupIndex(name = "mqtt_acl_dx", inlineSize = -1)
 public class MqttAcl implements Serializable {
 

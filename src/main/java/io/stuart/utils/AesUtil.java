@@ -43,7 +43,7 @@ public class AesUtil {
     }
 
     public static String decryptStrFromBase64(String dest) {
-        return aes.decryptStrFromBase64(dest);
+        return aes.decryptStr(dest);
     }
 
 }
