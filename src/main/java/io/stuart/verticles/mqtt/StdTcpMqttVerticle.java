@@ -14,45 +14,55 @@
  * limitations under the License.
  */
 
-package io.stuart.verticles.mqtt.impl;
+package io.stuart.verticles.mqtt;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.stuart.config.Config;
 import io.stuart.consts.SysConst;
+import io.stuart.context.ApplicationContext;
 import io.stuart.log.Logger;
 import io.vertx.core.net.PemKeyCertOptions;
 import io.vertx.mqtt.MqttServerOptions;
 
-public class ClsSslMqttVerticleImpl extends ClsAbstractMqttVerticle {
+public class StdTcpMqttVerticle extends StdMqttVerticle {
 
     // initialize connection count
-    private static final AtomicInteger sslConnCount = new AtomicInteger(0);
+    private static final AtomicInteger tcpConnCount = new AtomicInteger(0);
+
+    public StdTcpMqttVerticle(ApplicationContext context) {
+        // TODO Auto-generated constructor stub
+    }
 
     @Override
     public MqttServerOptions initOptions() {
-        Logger.log().debug("Stuart initialize clustered mqtt server options for SSL protocol.");
+        Logger.log().info("Stuart initialize standalone mqtt server options for TCP protocol.");
 
         // set protocol
-        protocol = SysConst.MQTT + SysConst.COLON + SysConst.SSL_PROTOCOL;
+        protocol = SysConst.MQTT + SysConst.COLON + SysConst.TCP_PROTOCOL;
         // set port
-        port = Config.getMqttSslPort();
+        port = Config.getMqttPort();
         // set listener
-        listener = Config.getInstanceListenAddr() + SysConst.COLON + Config.getMqttSslPort();
+        listener = Config.getInstanceListenAddr() + SysConst.COLON + Config.getMqttPort();
         // set max connections limit
-        connMaxLimit = Config.getMqttSslMaxConns();
+        connMaxLimit = Config.getMqttMaxConns();
 
         // initialize mqtt server options
         MqttServerOptions options = new MqttServerOptions();
 
         // set mqtt server options
         options.setHost(Config.getInstanceListenAddr());
-        options.setPort(Config.getMqttSslPort());
+        options.setPort(Config.getMqttPort());
         options.setMaxMessageSize(Config.getMqttMessageMaxSize());
         options.setTimeoutOnConnect(Config.getMqttClientConnectTimeoutS());
-        options.setKeyCertOptions(new PemKeyCertOptions().setKeyPath(Config.getMqttSslKeyPath()).setCertPath(Config.getMqttSslCertPath()));
-        options.setSsl(true);
-//        options.setOverWebsocket(false);
+        options.setUseWebSocket(false);
+
+        if (Config.isMqttSslEnable()) {
+            protocol = SysConst.MQTT + SysConst.COLON + SysConst.SSL_PROTOCOL;
+            options.setKeyCertOptions(new PemKeyCertOptions().setKeyPath(Config.getMqttSslKeyPath())
+                .setCertPath(Config.getMqttSslCertPath()));
+            options.setSsl(true);
+        }
 
         // return mqtt server options
         return options;
@@ -60,7 +70,7 @@ public class ClsSslMqttVerticleImpl extends ClsAbstractMqttVerticle {
 
     @Override
     public boolean limited() {
-        if (sslConnCount.get() >= connMaxLimit) {
+        if (tcpConnCount.get() >= connMaxLimit) {
             return true;
         } else {
             return false;
@@ -69,17 +79,17 @@ public class ClsSslMqttVerticleImpl extends ClsAbstractMqttVerticle {
 
     @Override
     public int incrementAndGetConnCount() {
-        return sslConnCount.incrementAndGet();
+        return tcpConnCount.incrementAndGet();
     }
 
     @Override
     public int decrementAndGetConnCount() {
-        return sslConnCount.decrementAndGet();
+        return tcpConnCount.decrementAndGet();
     }
 
     @Override
     public int getConnCount() {
-        return sslConnCount.get();
+        return tcpConnCount.get();
     }
 
 }

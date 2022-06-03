@@ -19,21 +19,14 @@ package io.stuart.bootstrap;
 import java.util.Timer;
 
 import io.stuart.config.Config;
+import io.stuart.context.ApplicationContext;
 import io.stuart.log.Logger;
-import io.stuart.services.auth.AuthService;
-import io.stuart.services.auth.holder.AuthHolder;
-import io.stuart.services.cache.CacheService;
-import io.stuart.services.cache.impl.StdCacheServiceImpl;
-import io.stuart.services.metrics.MetricsService;
-import io.stuart.services.session.SessionService;
-import io.stuart.services.session.impl.StdSessionServiceImpl;
 import io.stuart.tasks.SysRuntimeInfoTask;
 import io.stuart.utils.VertxUtil;
-import io.stuart.verticles.mqtt.impl.StdSslMqttVerticleImpl;
-import io.stuart.verticles.mqtt.impl.StdTcpMqttVerticleImpl;
-import io.stuart.verticles.mqtt.impl.StdWsMqttVerticleImpl;
-import io.stuart.verticles.mqtt.impl.StdWssMqttVerticleImpl;
-import io.stuart.verticles.web.impl.WebVerticleImpl;
+import io.stuart.verticles.admin.WebAdminVerticle;
+import io.stuart.verticles.mqtt.StdSslMqttVerticle;
+import io.stuart.verticles.mqtt.StdTcpMqttVerticle;
+import io.stuart.verticles.mqtt.StdWspMqttVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
@@ -43,15 +36,9 @@ public class StandaloneModeBootstrap implements ApplicationBootstrap {
 
     private Vertx vertx;
 
-    private CacheService cacheService;
-
-    private SessionService sessionService;
-
-    private AuthService authService;
-
-    private MetricsService metricsService;
-
     private Timer timer = new Timer();
+
+    private ApplicationContext applicationContext;
 
     @Override
     public void start() {
@@ -60,63 +47,44 @@ public class StandaloneModeBootstrap implements ApplicationBootstrap {
         // vert.x options
         VertxOptions vertxOptions = VertxUtil.vertxOptions()
             .setFileSystemOptions(new FileSystemOptions().setFileCachingEnabled(false));
-        // vertx. deployment options
-        DeploymentOptions deploymentOptions = VertxUtil.vertxDeploymentOptions(vertxOptions, null);
-
-        // get standalone cache service
-        cacheService = StdCacheServiceImpl.getInstance();
-        // start standalone cache service
-        cacheService.start();
-
         // start vert.x instance
         vertx = Vertx.vertx(vertxOptions);
 
-        // get standalone session service
-        sessionService = StdSessionServiceImpl.getInstance(vertx, cacheService);
-        // start standalone session service
-        sessionService.start();
+        applicationContext = new ApplicationContext();
+        applicationContext.start(vertx);
 
-        // get authentication and authorization service
-        authService = AuthHolder.getAuthService(vertx, cacheService);
-
-        if (authService != null) {
-            // start authentication and authorization service
-            authService.start();
-        }
-
-        // create metrics service
-        metricsService = MetricsService.i();
-        // start metrics service
-        metricsService.start();
-
+        // vertx. deployment options
+        DeploymentOptions deploymentOptions = VertxUtil.vertxDeploymentOptions(vertxOptions, null);
         // deploy the web verticle
-        vertx.deployVerticle(new WebVerticleImpl(vertx, cacheService), ar -> {
+        vertx.deployVerticle(StuartVerticleFactory.verticleName(WebAdminVerticle.class),
+            new DeploymentOptions().setInstances(2), ar -> {
+                if (ar.succeeded()) {
+                    Logger.log().info("Stuart's WEB management verticle deploy succeeded, listen at port {}.",
+                        Config.getHttpPort());
+                } else {
+                    Logger.log().error("Stuart's WEB management verticle deploy failed, excpetion: {}.",
+                        ar.cause().getMessage());
+                }
+            });
+
+        // deploy the standalone tcp mqtt verticle
+        vertx.deployVerticle(StuartVerticleFactory.verticleName(StdTcpMqttVerticle.class), deploymentOptions, ar -> {
             if (ar.succeeded()) {
-                Logger.log().info("Stuart's WEB management verticle deploy succeeded, listen at port {}.",
-                    Config.getHttpPort());
+                Logger.log().info("Stuart's MQTT TCP protocol verticle(s) deploy succeeded, listen at port {}.",
+                    Config.getMqttPort());
             } else {
-                Logger.log().error("Stuart's WEB management verticle deploy failed, excpetion: {}.",
+                Logger.log().error("Stuart's MQTT TCP protocol verticle(s) deploy failed, excpetion: {}.",
                     ar.cause().getMessage());
             }
         });
 
         // deploy the standalone tcp mqtt verticle
-        vertx.deployVerticle(StdTcpMqttVerticleImpl.class.getName(), deploymentOptions, ar -> {
+        vertx.deployVerticle(StuartVerticleFactory.verticleName(StdWspMqttVerticle.class), deploymentOptions, ar -> {
             if (ar.succeeded()) {
-                Logger.log().info("Stuart's MQTT protocol verticle(s) deploy succeeded, listen at port {}.",
-                    Config.getMqttPort());
-            } else {
-                Logger.log().error("Stuart's MQTT protocol verticle(s) deploy failed, excpetion: {}.",
-                    ar.cause().getMessage());
-            }
-        });
-        // deploy the standalone websocket mqtt verticle
-        vertx.deployVerticle(StdWsMqttVerticleImpl.class.getName(), deploymentOptions, ar -> {
-            if (ar.succeeded()) {
-                Logger.log().info("Stuart's MQTT over WebSocket verticle(s) deploy succeeded, listen at port {}.",
+                Logger.log().info("Stuart's MQTT WSP protocol verticle(s) deploy succeeded, listen at port {}.",
                     Config.getWsPort());
             } else {
-                Logger.log().error("Stuart's MQTT over WebSocket verticle(s) deploy failed, excpetion: {}.",
+                Logger.log().error("Stuart's MQTT WSP protocol verticle(s) deploy failed, excpetion: {}.",
                     ar.cause().getMessage());
             }
         });
@@ -124,54 +92,31 @@ public class StandaloneModeBootstrap implements ApplicationBootstrap {
         // if enable mqtt ssl protocol
         if (Config.isMqttSslEnable()) {
             // deploy the standalone ssl mqtt verticle
-            vertx.deployVerticle(StdSslMqttVerticleImpl.class.getName(), deploymentOptions, ar -> {
-                if (ar.succeeded()) {
-                    Logger.log().info("Stuart's MQTT SSL protocol verticle(s) deploy succeeded, listen at port {}.",
-                        Config.getMqttSslPort());
-                } else {
-                    Logger.log().error("Stuart's MQTT SSL protocol verticle(s) deploy failed, excpetion: {}.",
-                        ar.cause().getMessage());
-                }
-            });
-            // deploy the standalone ssl websocket mqtt verticle
-            vertx.deployVerticle(StdWssMqttVerticleImpl.class.getName(), deploymentOptions, ar -> {
-                if (ar.succeeded()) {
-                    Logger.log().info(
-                        "Stuart's MQTT over SSL WebSocket verticle(s) deploy succeeded, listen at port {}.",
-                        Config.getWssPort());
-                } else {
-                    Logger.log().error("Stuart's MQTT over SSL WebSocket verticle(s) deploy failed, excpetion: {}.",
-                        ar.cause().getMessage());
-                }
-            });
+            vertx.deployVerticle(StuartVerticleFactory.verticleName(StdSslMqttVerticle.class), deploymentOptions,
+                ar -> {
+                    if (ar.succeeded()) {
+                        Logger.log().info("Stuart's MQTT SSL protocol verticle(s) deploy succeeded, listen at port {}.",
+                            Config.getMqttSslPort());
+                    } else {
+                        Logger.log().error("Stuart's MQTT SSL protocol verticle(s) deploy failed, excpetion: {}.",
+                            ar.cause().getMessage());
+                    }
+                });
         }
 
         // set scheduled task
-        timer.schedule(new SysRuntimeInfoTask(cacheService), 0, Config.getInstanceMetricsPeriodMs());
+        timer.schedule(new SysRuntimeInfoTask(applicationContext.getCacheService()), 0,
+            Config.getInstanceMetricsPeriodMs());
     }
 
     @Override
     public void stop() {
         if (vertx != null) {
-            vertx.deploymentIDs().forEach(id -> {
-                vertx.undeploy(id);
+            vertx.close().onComplete(v -> {
+                if (applicationContext != null) {
+                    applicationContext.stop();
+                }
             });
-        }
-
-        if (metricsService != null) {
-            metricsService.stop();
-        }
-
-        if (authService != null) {
-            authService.stop();
-        }
-
-        if (sessionService != null) {
-            sessionService.stop();
-        }
-
-        if (cacheService != null) {
-            cacheService.stop();
         }
     }
 

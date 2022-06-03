@@ -1,43 +1,40 @@
-package io.stuart.verticles.mqtt.impl;
+package io.stuart.verticles.mqtt;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.stuart.config.Config;
 import io.stuart.consts.SysConst;
 import io.stuart.log.Logger;
-import io.vertx.core.net.PemKeyCertOptions;
 import io.vertx.mqtt.MqttServerOptions;
 
-public class ClsWssMqttVerticleImpl extends ClsAbstractMqttVerticle {
+public class ClsWsMqttVerticle extends ClsMqttVerticle {
 
     // initialize connection count
-    private static final AtomicInteger wssConnCount = new AtomicInteger(0);
+    private static final AtomicInteger wsConnCount = new AtomicInteger(0);
 
     @Override
     public MqttServerOptions initOptions() {
-        Logger.log().debug("Stuart initialize clustered mqtt server options for SSL WebSocket protocol.");
+        Logger.log().debug("Stuart initialize clustered mqtt server options for WebSocket protocol.");
 
         // set protocol
-        protocol = SysConst.MQTT + SysConst.COLON + SysConst.SSL_WEBSOCKET_PROTOCOL;
+        protocol = SysConst.MQTT + SysConst.COLON + SysConst.WEBSOCKET_PROTOCOL;
         // set port
-        port = Config.getWssPort();
+        port = Config.getWsPort();
         // set listener
-        listener = Config.getInstanceListenAddr() + SysConst.COLON + Config.getWssPort();
+        listener = Config.getInstanceListenAddr() + SysConst.COLON + Config.getWsPort();
         // set max connections limit
-        connMaxLimit = Config.getWssMaxConns();
+        connMaxLimit = Config.getWsMaxConns();
 
         // initialize mqtt server options
         MqttServerOptions options = new MqttServerOptions();
 
         // set mqtt server options
         options.setHost(Config.getInstanceListenAddr());
-        options.setPort(Config.getWssPort());
+        options.setPort(Config.getWsPort());
         options.setMaxMessageSize(Config.getMqttMessageMaxSize());
         options.setTimeoutOnConnect(Config.getMqttClientConnectTimeoutS());
-        options.setKeyCertOptions(new PemKeyCertOptions().setKeyPath(Config.getMqttSslKeyPath()).setCertPath(Config.getMqttSslCertPath()));
-        options.setSsl(true);
 //        options.setOverWebsocket(true);
-//        options.setWebsocketPath(Config.getWssPath());
+//        options.setWebsocketPath(Config.getWsPath());
 
         // return mqtt server options
         return options;
@@ -45,7 +42,7 @@ public class ClsWssMqttVerticleImpl extends ClsAbstractMqttVerticle {
 
     @Override
     public boolean limited() {
-        if (wssConnCount.get() >= connMaxLimit) {
+        if (wsConnCount.get() >= connMaxLimit) {
             return true;
         } else {
             return false;
@@ -54,17 +51,17 @@ public class ClsWssMqttVerticleImpl extends ClsAbstractMqttVerticle {
 
     @Override
     public int incrementAndGetConnCount() {
-        return wssConnCount.incrementAndGet();
+        return wsConnCount.incrementAndGet();
     }
 
     @Override
     public int decrementAndGetConnCount() {
-        return wssConnCount.decrementAndGet();
+        return wsConnCount.decrementAndGet();
     }
 
     @Override
     public int getConnCount() {
-        return wssConnCount.get();
+        return wsConnCount.get();
     }
 
 }

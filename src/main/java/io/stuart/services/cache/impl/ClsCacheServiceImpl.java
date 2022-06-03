@@ -29,6 +29,7 @@ import org.apache.ignite.Ignition;
 import org.apache.ignite.cluster.BaselineNode;
 import org.apache.ignite.cluster.ClusterGroup;
 import org.apache.ignite.cluster.ClusterNode;
+import org.apache.ignite.cluster.ClusterState;
 import org.apache.ignite.events.DiscoveryEvent;
 import org.apache.ignite.events.EventType;
 import org.apache.ignite.internal.IgniteEx;
@@ -70,24 +71,29 @@ public class ClsCacheServiceImpl extends AbstractCacheService {
 
     // declare node left and failed event listener
     private IgnitePredicate<DiscoveryEvent> nodeEventListener = evt -> {
-        Logger.log().debug("node : {} - receive another node's left/failed/joined event : {}", thisNodeId, evt.message());
+        Logger.log().debug("node : {} - receive another node's left/failed/joined event : {}", thisNodeId,
+            evt.message());
 
         // get alive server node set
-        Set<Object> alives = evt.topologyNodes().stream().filter(n -> !n.isClient()).map(ClusterNode::consistentId).collect(Collectors.toSet());
+        Set<Object> alives = evt.topologyNodes().stream().filter(n -> !n.isClient()).map(ClusterNode::consistentId)
+            .collect(Collectors.toSet());
         // get baseline node set
-        Set<Object> baseline = ignite.cluster().currentBaselineTopology().stream().map(BaselineNode::consistentId).collect(Collectors.toSet());
+        Set<Object> baseline = ignite.cluster().currentBaselineTopology().stream().map(BaselineNode::consistentId)
+            .collect(Collectors.toSet());
         // get topology version
         final long topologyVersion = evt.topologyVersion();
 
         if (!alives.equals(baseline)) {
-            ((IgniteEx) ignite).context().timeout().addTimeoutObject(new GridTimeoutObjectAdapter(Config.getClusterBltRebalanceTimeMs()) {
-                @Override
-                public void onTimeout() {
-                    if (ignite.cluster().topologyVersion() == topologyVersion) {
-                        ignite.cluster().setBaselineTopology(topologyVersion);
+            ((IgniteEx) ignite).context().timeout()
+                .addTimeoutObject(new GridTimeoutObjectAdapter(Config.getClusterBltRebalanceTimeMs()) {
+
+                    @Override
+                    public void onTimeout() {
+                        if (ignite.cluster().topologyVersion() == topologyVersion) {
+                            ignite.cluster().setBaselineTopology(topologyVersion);
+                        }
                     }
-                }
-            });
+                });
         }
 
         if (evt.type() == EventType.EVT_NODE_LEFT || evt.type() == EventType.EVT_NODE_FAILED) {
@@ -149,7 +155,8 @@ public class ClsCacheServiceImpl extends AbstractCacheService {
             // start ignite
             ignite = Ignition.start(ClsUtil.igniteCfg());
             // active ignite for persistent storage
-            ignite.cluster().active(true);
+            ignite.cluster().state(ClusterState.ACTIVE);
+
             // set baseline topology
             Collection<ClusterNode> clusterNodes = ClsUtil.setBaselineTopology(ignite);
 
@@ -207,7 +214,8 @@ public class ClsCacheServiceImpl extends AbstractCacheService {
             }
 
             // set node event listener
-            ignite.events().localListen(nodeEventListener, EventType.EVT_NODE_LEFT, EventType.EVT_NODE_FAILED, EventType.EVT_NODE_JOINED);
+            ignite.events().localListen(nodeEventListener, EventType.EVT_NODE_LEFT, EventType.EVT_NODE_FAILED,
+                EventType.EVT_NODE_JOINED);
 
             // initialize this node information
             initNode(ClsUtil.isFirstNode(clusterNodes));
@@ -291,7 +299,8 @@ public class ClsCacheServiceImpl extends AbstractCacheService {
         node.setJavaVersion(SysUtil.getJavaAndJvmInfo());
         node.setStatus(Status.Running.value());
 
-        Logger.log().debug("node : {} - cluster node startup information is {}, is the first node of cluster? {}", thisNodeId, node, isFirstNode);
+        Logger.log().debug("node : {} - cluster node startup information is {}, is the first node of cluster? {}",
+            thisNodeId, node, isFirstNode);
         Logger.log().debug("node : {} - cluster node startup, the old node is {}", thisNodeId, old);
 
         if (isFirstNode) {

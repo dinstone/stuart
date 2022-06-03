@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.stuart.verticles.mqtt.impl;
+package io.stuart.verticles.mqtt;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,14 +23,14 @@ import io.stuart.consts.SysConst;
 import io.stuart.log.Logger;
 import io.vertx.mqtt.MqttServerOptions;
 
-public class StdTcpMqttVerticleImpl extends StdAbstractMqttVerticle {
+public class ClsTcpMqttVerticle extends ClsMqttVerticle {
 
     // initialize connection count
     private static final AtomicInteger tcpConnCount = new AtomicInteger(0);
 
     @Override
     public MqttServerOptions initOptions() {
-        Logger.log().info("Stuart initialize standalone mqtt server options for TCP protocol.");
+        Logger.log().debug("Stuart initialize clustered mqtt server options for TCP protocol.");
 
         // set protocol
         protocol = SysConst.MQTT + SysConst.COLON + SysConst.TCP_PROTOCOL;
@@ -49,8 +49,8 @@ public class StdTcpMqttVerticleImpl extends StdAbstractMqttVerticle {
         options.setPort(Config.getMqttPort());
         options.setMaxMessageSize(Config.getMqttMessageMaxSize());
         options.setTimeoutOnConnect(Config.getMqttClientConnectTimeoutS());
-//        options.setOverWebsocket(false);
-
+        options.setUseWebSocket(true);
+        
         // return mqtt server options
         return options;
     }

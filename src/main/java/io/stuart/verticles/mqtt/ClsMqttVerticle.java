@@ -14,51 +14,55 @@
  * limitations under the License.
  */
 
-package io.stuart.verticles.mqtt.impl;
+package io.stuart.verticles.mqtt;
 
 import java.util.List;
 import java.util.function.Function;
 
 import io.netty.handler.codec.mqtt.MqttQoS;
+import io.stuart.consts.EventConst;
 import io.stuart.consts.MetricsConst;
 import io.stuart.entities.cache.MqttAwaitMessage;
 import io.stuart.entities.cache.MqttMessage;
 import io.stuart.entities.cache.MqttWillMessage;
 import io.stuart.entities.internal.MqttAuthority;
+import io.stuart.entities.internal.MqttMessageTuple;
 import io.stuart.entities.internal.MqttRoute;
 import io.stuart.enums.Access;
 import io.stuart.log.Logger;
 import io.stuart.services.auth.holder.AuthHolder;
-import io.stuart.services.cache.impl.StdCacheServiceImpl;
+import io.stuart.services.cache.impl.ClsCacheServiceImpl;
 import io.stuart.services.metrics.MetricsService;
-import io.stuart.services.session.impl.StdSessionServiceImpl;
+import io.stuart.services.session.impl.ClsSessionServiceImpl;
 import io.stuart.sessions.SessionWrapper;
 import io.stuart.utils.AuthUtil;
 import io.stuart.utils.MsgUtil;
 import io.stuart.utils.TopicUtil;
+import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.mqtt.MqttAuth;
 import io.vertx.mqtt.MqttEndpoint;
 import io.vertx.mqtt.MqttServer;
 import io.vertx.mqtt.MqttServerOptions;
 import io.vertx.mqtt.messages.MqttPublishMessage;
 
-public abstract class StdAbstractMqttVerticle extends AbstractMqttVerticle {
+public abstract class ClsMqttVerticle extends AbstractMqttVerticle {
+
+    private static volatile MessageConsumer<MqttMessageTuple> consumer;
 
     @Override
     public void start() throws Exception {
         super.start();
 
-        Logger.log().info("Stuart's standalone mqtt verticle start...");
+        Logger.log().debug("Stuart's clustered mqtt verticle start...");
 
         // set cache service
-        cacheService = StdCacheServiceImpl.getInstance();
+        cacheService = ClsCacheServiceImpl.getInstance();
         // set session service
-        sessionService = StdSessionServiceImpl.getInstance(vertx, cacheService);
+        sessionService = ClsSessionServiceImpl.getInstance(vertx, cacheService);
         // set authentication and authorization service
         authService = AuthHolder.getAuthService(vertx, cacheService);
         // set this node id
         thisNodeId = cacheService.localNodeId();
-        
 
         // initialize mqtt server options
         MqttServerOptions options = initOptions();
@@ -68,14 +72,35 @@ public abstract class StdAbstractMqttVerticle extends AbstractMqttVerticle {
         // save mqtt listener
         saveListener();
 
-        Logger.log().info("Stuart's standalone mqtt verticle prepared");
+        // initialize mqtt message tuple consumer
+        if (initConsumer()) {
+            // set consumer handler
+            consumer.handler(message -> {
+                // get mqtt message tuple
+                MqttMessageTuple tuple = message.body();
+
+                if (tuple != null) {
+                    handleLocalPublishMessage(tuple.getRoute(), tuple.getMessage());
+                }
+
+                // reply succeeded
+                message.reply(true);
+            }).completionHandler(ar -> {
+                if (ar.succeeded()) {
+                    Logger.log().debug("Stuart's clustered mqtt verticle's publish message consumer register succeeded.");
+                } else {
+                    Logger.log().error("Stuart's clustered mqtt verticle's publish message consumer register failed, exception: {}.", ar.cause().getMessage());
+                }
+            });
+        }
+
         server.endpointHandler(endpoint -> {
             handleEndpoint(endpoint);
         }).listen(ar -> {
             if (ar.succeeded()) {
-                Logger.log().info("Stuart's standalone mqtt verticle start succeeded, the verticle listen at port {}.", port);
+                Logger.log().debug("Stuart's clustered mqtt verticle start succeeded, the verticle listen at port {}.", port);
             } else {
-                Logger.log().error("Stuart's standalone mqtt verticle start failed, excpetion: {}.", ar.cause().getMessage());
+                Logger.log().error("Stuart's clustered mqtt verticle start failed, excpetion: {}.", ar.cause().getMessage());
             }
         });
     }
@@ -83,6 +108,18 @@ public abstract class StdAbstractMqttVerticle extends AbstractMqttVerticle {
     @Override
     public void stop() throws Exception {
         super.stop();
+
+        if (consumer != null) {
+            // consumer unregister
+            consumer.unregister(ar -> {
+                if (ar.succeeded()) {
+                    Logger.log().debug("Stuart's clustered mqtt verticle's publish message consumer unregister succeeded.");
+                } else {
+                    Logger.log().error("Stuart's clustered mqtt verticle's publish message consumer unregister failed, exception: {}.",
+                            ar.cause().getMessage());
+                }
+            });
+        }
     }
 
     @Override
@@ -129,7 +166,7 @@ public abstract class StdAbstractMqttVerticle extends AbstractMqttVerticle {
 
                     // check: qos == 2
                     if (qos == MqttQoS.EXACTLY_ONCE) {
-                        // get this mqtt session wrapper
+                        // get mqtt session wrapper
                         SessionWrapper wrapper = sessionService.getWrapper(endpoint.clientIdentifier());
 
                         if (wrapper != null) {
@@ -138,11 +175,11 @@ public abstract class StdAbstractMqttVerticle extends AbstractMqttVerticle {
                             wrapper.receiveQos2Message(message);
                         }
                     } else {
-                        // get matched client and topic routes
-                        List<MqttRoute> routes = cacheService.getRoutes(topicName, message.qosLevel().value());
+                        // get clustered routes
+                        List<MqttRoute> routes = cacheService.getClusteredRoutes(topicName, message.qosLevel().value());
 
-                        // publish message to client
-                        handleLocalPublishMessage(routes, message);
+                        // publish message to clustered nodes
+                        handleClusteredPublishMessage(routes, message);
                     }
 
                     // complete execute blocking code
@@ -190,17 +227,17 @@ public abstract class StdAbstractMqttVerticle extends AbstractMqttVerticle {
             SessionWrapper wrapper = sessionService.getWrapper(clientId);
 
             if (wrapper != null) {
-                // get mqtt await message
+                // get await message
                 MqttAwaitMessage await = wrapper.releaseQos2Message(messageId);
 
                 if (await != null) {
                     // get mqtt message
                     MqttMessage message = MsgUtil.convert2MqttMessage(await);
-                    // get matched client and topic routes
-                    List<MqttRoute> routes = cacheService.getRoutes(await.getTopic(), await.getQos());
+                    // get clustered routes
+                    List<MqttRoute> routes = cacheService.getClusteredRoutes(await.getTopic(), await.getQos());
 
-                    // publish message to client
-                    handleLocalPublishMessage(routes, message);
+                    // publish message to clustered nodes
+                    handleClusteredPublishMessage(routes, message);
                 }
             }
 
@@ -223,16 +260,17 @@ public abstract class StdAbstractMqttVerticle extends AbstractMqttVerticle {
         // get will message
         MqttWillMessage will = cacheService.getWill(endpoint.clientIdentifier());
 
-        Logger.log().debug("node : {} - handle client id : {} close, get will message {}.", thisNodeId, endpoint.clientIdentifier(), will);
+        Logger.log().debug("node : {} - handle client id : {} close, get will message {}", thisNodeId, endpoint.clientIdentifier(), will);
 
         if (will != null) {
             // get mqtt message
             MqttMessage message = MsgUtil.convert2MqttMessage(will);
-            // get matched client and topic routes
-            List<MqttRoute> routes = cacheService.getRoutes(will.getTopic(), will.getQos());
+            // get clustered routes
+            List<MqttRoute> routes = cacheService.getClusteredRoutes(will.getTopic(), will.getQos());
 
-            // publish message to client
-            handleLocalPublishMessage(routes, message);
+            // publish message to clustered nodes
+            handleClusteredPublishMessage(routes, message);
+
             // delete will message
             cacheService.deleteWill(endpoint.clientIdentifier(), false);
         }
@@ -249,5 +287,20 @@ public abstract class StdAbstractMqttVerticle extends AbstractMqttVerticle {
 
     @Override
     public abstract int getConnCount();
+
+    private boolean initConsumer() {
+        if (consumer == null) {
+            synchronized (ClsMqttVerticle.class) {
+                if (consumer == null) {
+                    // initialize mqtt message tuple consumer
+                    consumer = eventBus.consumer(EventConst.CLS_PUBLISH_TOPIC_PREFIX + thisNodeId.toString());
+                    // return succeeded
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
 }

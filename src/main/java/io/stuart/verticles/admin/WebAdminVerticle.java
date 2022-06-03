@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.stuart.verticles.web.impl;
+package io.stuart.verticles.admin;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -32,6 +32,7 @@ import io.stuart.config.Config;
 import io.stuart.consts.AclConst;
 import io.stuart.consts.HttpConst;
 import io.stuart.consts.SysConst;
+import io.stuart.context.ApplicationContext;
 import io.stuart.entities.auth.MqttAcl;
 import io.stuart.entities.auth.MqttAdmin;
 import io.stuart.entities.auth.MqttUser;
@@ -51,9 +52,7 @@ import io.stuart.services.cache.CacheService;
 import io.stuart.services.metrics.MetricsService;
 import io.stuart.utils.IdUtil;
 import io.stuart.utils.SysUtil;
-import io.stuart.verticles.web.WebVerticle;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
@@ -77,13 +76,11 @@ import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.sstore.LocalSessionStore;
 
-public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
+public class WebAdminVerticle extends AbstractVerticle {
 
     private static final String sessionMapName = "stuart.http.sessions";
 
     private static final String sessionAccount = "__stuart.sessionAccount";
-
-    private Vertx vertx;
 
     private CacheService cacheService;
 
@@ -99,9 +96,8 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
 
     private QueryListenersClosure queryListenersClosure;
 
-    public WebVerticleImpl(Vertx vertx, CacheService cacheService) {
-        this.vertx = vertx;
-        this.cacheService = cacheService;
+    public WebAdminVerticle(ApplicationContext context) {
+        this.cacheService = context.getCacheService();
         this.systemInfoCallable = SysUtil::getSystemInfo;
         this.nodeMetricsCallable = NodeMetrics::getInstance;
         this.mqttMetricsCallable = MqttMetrics::getInstance;
@@ -109,7 +105,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         this.queryListenersClosure = new QueryListenersClosure(cacheService);
     }
 
-    @Override
     public void start() throws Exception {
         Logger.log().debug("Stuart's web verticle start...");
 
@@ -304,12 +299,10 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         });
     }
 
-    @Override
     public void stop() throws Exception {
         // do nothing...
     }
 
-    @Override
     public void login(RoutingContext rc) {
         // get session
         Session session = rc.session();
@@ -360,7 +353,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void logout(RoutingContext rc) {
         // remove session account
         rc.session().data().remove(sessionAccount);
@@ -370,7 +362,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         rc.response().putHeader(HttpConst.LOCATION, "/").setStatusCode(302).end();
     }
 
-    @Override
     public void initIndex(RoutingContext rc) {
         try {
             // get node id
@@ -426,7 +417,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void getSystemInfo(RoutingContext rc) {
         try {
             // get node id
@@ -477,7 +467,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void getNodeMetrics(RoutingContext rc) {
         // return json
         JsonObject json = new JsonObject();
@@ -529,7 +518,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         writeJsonResponse(rc, json);
     }
 
-    @Override
     public void getMqttMetrics(RoutingContext rc) {
         // get node id
         UUID nodeId = getRequestNodeId(rc);
@@ -570,7 +558,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         writeJsonResponse(rc, json);
     }
 
-    @Override
     public void getConnections(RoutingContext rc) {
         try {
             // get node id
@@ -617,7 +604,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void getSessions(RoutingContext rc) {
         try {
             // get node id
@@ -657,7 +643,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void getTopics(RoutingContext rc) {
         try {
             // get request body
@@ -718,7 +703,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void getSubscribes(RoutingContext rc) {
         try {
             // get node id
@@ -755,7 +739,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void addUser(RoutingContext rc) {
         try {
             // get node id
@@ -798,7 +781,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void deleteUser(RoutingContext rc) {
         try {
             // get node id
@@ -832,7 +814,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void updateUser(RoutingContext rc) {
         try {
             // get node id
@@ -879,7 +860,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void getUsers(RoutingContext rc) {
         try {
             // get node id
@@ -920,7 +900,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void addAcl(RoutingContext rc) {
         try {
             // get node id
@@ -977,7 +956,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void deleteAcl(RoutingContext rc) {
         try {
             // get node id
@@ -1010,7 +988,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void updateAcl(RoutingContext rc) {
         try {
             // get node id
@@ -1069,7 +1046,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void reorderAcls(RoutingContext rc) {
         try {
             // get node id
@@ -1138,7 +1114,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void getAcls(RoutingContext rc) {
         try {
             // get node id
@@ -1178,7 +1153,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void getListeners(RoutingContext rc) {
         try {
             // get node id
@@ -1220,7 +1194,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         }
     }
 
-    @Override
     public void addAdmin(RoutingContext rc) {
         // return json
         JsonObject json = new JsonObject();
@@ -1252,7 +1225,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         writeJsonResponse(rc, json);
     }
 
-    @Override
     public void deleteAdmin(RoutingContext rc) {
         // return json
         JsonObject json = new JsonObject();
@@ -1274,7 +1246,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         writeJsonResponse(rc, json);
     }
 
-    @Override
     public void updateAdmin(RoutingContext rc) {
         // return json
         JsonObject json = new JsonObject();
@@ -1308,7 +1279,6 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         writeJsonResponse(rc, json);
     }
 
-    @Override
     public void getAdmins(RoutingContext rc) {
         // return json
         JsonObject json = new JsonObject();
@@ -1343,9 +1313,9 @@ public class WebVerticleImpl extends AbstractVerticle implements WebVerticle {
         route.consumes(consumes);
         route.produces(produces);
 
-//        if (hasBody(method)) {
-//            route.handler(BodyHandler.create());
-//        }
+        // if (hasBody(method)) {
+        // route.handler(BodyHandler.create());
+        // }
 
         return route;
     }

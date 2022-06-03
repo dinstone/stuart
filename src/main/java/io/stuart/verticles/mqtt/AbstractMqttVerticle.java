@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.stuart.verticles.mqtt.impl;
+package io.stuart.verticles.mqtt;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -47,7 +47,6 @@ import io.stuart.utils.AuthUtil;
 import io.stuart.utils.IdUtil;
 import io.stuart.utils.MsgUtil;
 import io.stuart.utils.TopicUtil;
-import io.stuart.verticles.mqtt.MqttVerticle;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
@@ -65,7 +64,7 @@ import io.vertx.mqtt.messages.MqttUnsubscribeMessage;
  * address => MqttNode.listenAddr => Config.getInstanceListenAddr() <BR/>
  * port => Config.getMqttPort()/Config.getMqttSslPort()
  */
-public abstract class AbstractMqttVerticle extends AbstractVerticle implements MqttVerticle {
+public abstract class AbstractMqttVerticle extends AbstractVerticle {
 
     protected String protocol;
 
@@ -85,21 +84,8 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
 
     protected UUID thisNodeId;
 
-    public void start() throws Exception {
-        super.start();
-
-        // set event bus
-        this.eventBus = vertx.eventBus();
-    }
-
-    public void stop() throws Exception {
-        // do nothing...
-    }
-
-    @Override
     public abstract MqttServerOptions initOptions();
 
-    @Override
     public void handleEndpoint(MqttEndpoint endpoint) {
         if (limited()) {
             // reached the maximum number of connections
@@ -147,7 +133,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         }
     }
 
-    @Override
     public void handleReject(MqttEndpoint endpoint, MqttConnectReturnCode code) {
         // reject endpoint
         endpoint.reject(code);
@@ -157,7 +142,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         MetricsService.i().record(MetricsConst.PN_SM_PACKET_CONNECT, 1, MetricsConst.PN_SM_PACKET_CONNACK, 1);
     }
 
-    @Override
     public void handleAccept(MqttEndpoint endpoint) {
         vertx.executeBlocking(future -> {
             // initialize session
@@ -228,7 +212,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         MetricsService.i().record(MetricsConst.PN_SM_PACKET_CONNECT, 1, MetricsConst.PN_SM_PACKET_CONNACK, 1);
     }
 
-    @Override
     public void handleSubscribe(MqttEndpoint endpoint, MqttSubscribeMessage subscribe) {
         // initialize 'SUBACK' result
         final List<MqttQoS> qos = new ArrayList<>();
@@ -336,7 +319,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         MetricsService.i().record(MetricsConst.PN_SM_PACKET_SUBSCRIBE, 1, MetricsConst.PN_SM_PACKET_SUBACK, 1);
     }
 
-    @Override
     public void handleUnsubscribe(MqttEndpoint endpoint, MqttUnsubscribeMessage unsubscribe) {
         vertx.executeBlocking(future -> {
             // get mqtt session wrapper
@@ -362,13 +344,10 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         MetricsService.i().record(MetricsConst.PN_SM_PACKET_UNSUBSCRIBE, 1, MetricsConst.PN_SM_PACKET_UNSUBACK, 1);
     }
 
-    @Override
     public abstract void handlePublish(MqttEndpoint endpoint, MqttPublishMessage message);
 
-    @Override
     public abstract void handlePublishRelease(MqttEndpoint endpoint, int messageId);
 
-    @Override
     public void handlePublishAcknowledge(MqttEndpoint endpoint, int messageId) {
         vertx.executeBlocking(future -> {
             // get mqtt session wrapper
@@ -390,7 +369,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         MetricsService.i().record(MetricsConst.PN_SM_PACKET_PUBACK_RECEIVED, 1);
     }
 
-    @Override
     public void handlePublishReceived(MqttEndpoint endpoint, int messageId) {
         vertx.executeBlocking(future -> {
             // get mqtt session wrapper
@@ -416,7 +394,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
             1);
     }
 
-    @Override
     public void handlePublishCompletion(MqttEndpoint endpoint, int messageId) {
         vertx.executeBlocking(future -> {
             // get mqtt session wrapper
@@ -438,7 +415,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         MetricsService.i().record(MetricsConst.PN_SM_PACKET_PUBCOMP_RECEIVED, 1);
     }
 
-    @Override
     public void handlePing(MqttEndpoint endpoint) {
         if (!endpoint.isAutoKeepAlive()) {
             endpoint.pong();
@@ -449,13 +425,11 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         MetricsService.i().record(MetricsConst.PN_SM_PACKET_PINGREQ, 1, MetricsConst.PN_SM_PACKET_PINGRESP, 1);
     }
 
-    @Override
     public void handleDisconnect(MqttEndpoint endpoint) {
         // metrics: mqtt 'DISCONNECT' received count + 1
         MetricsService.i().record(MetricsConst.PN_SM_PACKET_DISCONNECT, 1);
     }
 
-    @Override
     public void handleClose(MqttEndpoint endpoint) {
         vertx.executeBlocking(future -> {
             // publish will message
@@ -474,7 +448,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         });
     }
 
-    @Override
     public void handleRetainMessage(MqttPublishMessage message) {
         if (message == null || !message.isRetain()) {
             return;
@@ -504,7 +477,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         }
     }
 
-    @Override
     public void handleWillMessage(MqttEndpoint endpoint) {
         // get client id
         String clientId = endpoint.clientIdentifier();
@@ -529,22 +501,16 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         cacheService.saveWill(MsgUtil.convert2MqttWillMessage(will, clientId));
     }
 
-    @Override
     public abstract void handleWillPublish(MqttEndpoint endpoint);
 
-    @Override
     public abstract boolean limited();
 
-    @Override
     public abstract int incrementAndGetConnCount();
 
-    @Override
     public abstract int decrementAndGetConnCount();
 
-    @Override
     public abstract int getConnCount();
 
-    @Override
     public boolean hasAuth(MqttAuth auth) {
         if (auth == null) {
             return false;
@@ -560,7 +526,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         return true;
     }
 
-    @Override
     public void saveListener() {
         // initialize mqtt listener
         MqttListener mqttListener = new MqttListener();
@@ -575,7 +540,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         cacheService.saveListener(mqttListener);
     }
 
-    @Override
     public void saveConnection(MqttEndpoint endpoint) {
         // get client id
         String clientId = endpoint.clientIdentifier();
@@ -618,7 +582,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         }
     }
 
-    @Override
     public void deleteConnection(MqttEndpoint endpoint) {
         // get client id
         String clientId = endpoint.clientIdentifier();
@@ -654,7 +617,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         }
     }
 
-    @Override
     public void handlePublishRetainMessage(SessionWrapper wrapper, String topic, int qos) {
         if (wrapper == null || !TopicUtil.validateTopic(topic)) {
             return;
@@ -668,7 +630,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         });
     }
 
-    @Override
     public void handleLocalPublishMessage(List<MqttRoute> routes, MqttPublishMessage message) {
         if (routes == null || routes.isEmpty() || message == null) {
             return;
@@ -683,7 +644,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         });
     }
 
-    @Override
     public void handleLocalPublishMessage(List<MqttRoute> routes, MqttMessage message) {
         if (routes == null || routes.isEmpty() || message == null) {
             return;
@@ -695,7 +655,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         });
     }
 
-    @Override
     public void handleLocalPublishMessage(MqttRoute route, MqttMessage message) {
         if (route == null || message == null) {
             return;
@@ -734,7 +693,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         });
     }
 
-    @Override
     public void handleClusteredPublishMessage(List<MqttRoute> routes, MqttPublishMessage message) {
         if (routes == null || routes.isEmpty() || message == null) {
             return;
@@ -749,7 +707,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         });
     }
 
-    @Override
     public void handleClusteredPublishMessage(List<MqttRoute> routes, MqttMessage message) {
         if (routes == null || routes.isEmpty() || message == null) {
             return;
@@ -761,7 +718,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle implements M
         });
     }
 
-    @Override
     public void handleClusteredPublishMessage(MqttRoute route, MqttMessage message) {
         if (route == null || message == null) {
             return;

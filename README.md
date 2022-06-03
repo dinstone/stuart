@@ -16,8 +16,8 @@ Stuart is an MQTT broker based on [Eclipse Vert.x](https://vertx.io) and [Apache
 
 #### 安装教程
 1. 运行环境<br>
-   JDK：Oracle JDK 15 或 OpenJDK 15<br>
-   操作系统：Linux、Mac OS X(10.6以上)、Windows(XP以上)、Windows Server(2008以上)<br>
+   JDK：Oracle JDK 11, Open JDK 11<br>
+   OS：Linux (any flavor), Mac OSX (10.6 and up), Windows (XP and up), Windows Server (2008 and up)<br>
 2. 下载 release 版本，使用如下命令直接运行：`java -jar stuart-1.0.0-fat.jar`<br>
    运行后会在 stuart-1.0.0-fat.jar 文件的同级目录下创建 storage 和 log 两个目录，在未使用 --cfg 指定配置文件时，Stuart 将使用 jar 包中自带的 cfg.properties 进行启动<br>
    如果想查看启动命令的具体参数，可以使用如下命令：`java -jar stuart-1.0.0-fat.jar -h`<br>

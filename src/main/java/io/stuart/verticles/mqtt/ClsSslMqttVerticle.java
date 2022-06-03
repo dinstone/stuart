@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.stuart.verticles.mqtt.impl;
+package io.stuart.verticles.mqtt;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,14 +24,14 @@ import io.stuart.log.Logger;
 import io.vertx.core.net.PemKeyCertOptions;
 import io.vertx.mqtt.MqttServerOptions;
 
-public class StdSslMqttVerticleImpl extends StdAbstractMqttVerticle {
+public class ClsSslMqttVerticle extends ClsMqttVerticle {
 
     // initialize connection count
     private static final AtomicInteger sslConnCount = new AtomicInteger(0);
 
     @Override
     public MqttServerOptions initOptions() {
-        Logger.log().debug("Stuart initialize standalone mqtt server options for SSL protocol.");
+        Logger.log().debug("Stuart initialize clustered mqtt server options for SSL protocol.");
 
         // set protocol
         protocol = SysConst.MQTT + SysConst.COLON + SysConst.SSL_PROTOCOL;
