@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package io.stuart.bootstrap;
+package io.stuart.context;
 
 import java.util.concurrent.Callable;
 
-import io.stuart.context.ApplicationContext;
 import io.stuart.verticles.admin.WebAdminVerticle;
+import io.stuart.verticles.mqtt.ClsTcpMqttVerticle;
+import io.stuart.verticles.mqtt.ClsWspMqttVerticle;
 import io.stuart.verticles.mqtt.StdTcpMqttVerticle;
 import io.stuart.verticles.mqtt.StdWspMqttVerticle;
 import io.vertx.core.Promise;
@@ -65,10 +66,12 @@ public class StuartVerticleFactory implements VerticleFactory {
             return new StdTcpMqttVerticle(context);
         } else if (StdWspMqttVerticle.class.getName().equals(clazz)) {
             return new StdWspMqttVerticle(context);
+        } else if (ClsTcpMqttVerticle.class.getName().equals(clazz)) {
+            return new ClsTcpMqttVerticle(context);
+        } else if (ClsWspMqttVerticle.class.getName().equals(clazz)) {
+            return new ClsWspMqttVerticle(context);
         }
-        // else if (LaunchVerticle.class.getName().equals(clazz)) {
-        // return new LaunchVerticle(context);
-        // }
+
         throw new IllegalArgumentException("unsupported verticle type: " + clazz);
     }
 

@@ -20,13 +20,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import io.stuart.config.Config;
 import io.stuart.consts.SysConst;
+import io.stuart.context.ApplicationContext;
 import io.stuart.log.Logger;
+import io.vertx.core.net.PemKeyCertOptions;
 import io.vertx.mqtt.MqttServerOptions;
 
 public class ClsTcpMqttVerticle extends ClsMqttVerticle {
 
     // initialize connection count
     private static final AtomicInteger tcpConnCount = new AtomicInteger(0);
+
+    public ClsTcpMqttVerticle(ApplicationContext context) {
+        // TODO Auto-generated constructor stub
+    }
 
     @Override
     public MqttServerOptions initOptions() {
@@ -49,8 +55,15 @@ public class ClsTcpMqttVerticle extends ClsMqttVerticle {
         options.setPort(Config.getMqttPort());
         options.setMaxMessageSize(Config.getMqttMessageMaxSize());
         options.setTimeoutOnConnect(Config.getMqttClientConnectTimeoutS());
-        options.setUseWebSocket(true);
-        
+        options.setUseWebSocket(false);
+
+        if (Config.isMqttSslEnable()) {
+            protocol = SysConst.MQTT + SysConst.COLON + SysConst.SSL_PROTOCOL;
+            options.setKeyCertOptions(new PemKeyCertOptions().setKeyPath(Config.getMqttSslKeyPath())
+                .setCertPath(Config.getMqttSslCertPath()));
+            options.setSsl(true);
+        }
+
         // return mqtt server options
         return options;
     }

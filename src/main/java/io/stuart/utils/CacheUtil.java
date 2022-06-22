@@ -54,12 +54,14 @@ import io.stuart.entities.cache.MqttTrieKey;
 import io.stuart.entities.cache.MqttWillMessage;
 import io.stuart.ext.collections.ExpiringMap;
 import io.stuart.ext.collections.ExpiringMap.Builder;
+import io.vertx.spi.cluster.ignite.impl.VertxLogger;
 import net.jodah.expiringmap.ExpirationListener;
 import net.jodah.expiringmap.ExpirationPolicy;
 
 public class CacheUtil {
 
-    public static IgniteConfiguration igniteCfg(boolean persistenceEnabled, boolean compactFooter, int... inclEvtTypes) {
+    public static IgniteConfiguration igniteCfg(boolean persistenceEnabled, boolean compactFooter,
+            int... inclEvtTypes) {
         // initialize ignite configuration
         IgniteConfiguration igniteCfg = new IgniteConfiguration();
 
@@ -68,41 +70,45 @@ public class CacheUtil {
         igniteCfg.setBinaryConfiguration(binaryCfg(compactFooter));
         igniteCfg.setIncludeEventTypes(inclEvtTypes);
         igniteCfg.setPeerClassLoadingEnabled(true);
+        igniteCfg.setGridLogger(new VertxLogger());
 
         // return ignite configuration
         return igniteCfg;
     }
 
-    public static <K, V> CacheConfiguration<K, V> memCacheCfg(String name, CacheMode cacheMode, CacheAtomicityMode atomicityMode, int backups,
-            Class<?>... indexedTypes) {
+    public static <K, V> CacheConfiguration<K, V> memCacheCfg(String name, CacheMode cacheMode,
+            CacheAtomicityMode atomicityMode, int backups, Class<?>... indexedTypes) {
 
         // return memory data region cache configuration
         return memCacheCfg(name, cacheMode, atomicityMode, writeSyncMode(), backups, indexedTypes);
     }
 
-    public static <K, V> CacheConfiguration<K, V> memCacheCfg(String name, CacheMode cacheMode, CacheAtomicityMode atomicityMode,
-            CacheWriteSynchronizationMode writeSync, int backups, Class<?>... indexedTypes) {
+    public static <K, V> CacheConfiguration<K, V> memCacheCfg(String name, CacheMode cacheMode,
+            CacheAtomicityMode atomicityMode, CacheWriteSynchronizationMode writeSync, int backups,
+            Class<?>... indexedTypes) {
 
         // return memory data region cache configuration
-        return cacheCfg(name, CacheConst.MEM_DATA_REGION_NAME, cacheMode, atomicityMode, writeSync, backups, indexedTypes);
+        return cacheCfg(name, CacheConst.MEM_DATA_REGION_NAME, cacheMode, atomicityMode, writeSync, backups,
+            indexedTypes);
     }
 
-    public static <K, V> CacheConfiguration<K, V> cacheCfg(String name, CacheMode cacheMode, CacheAtomicityMode atomicityMode, int backups,
-            Class<?>... indexedTypes) {
+    public static <K, V> CacheConfiguration<K, V> cacheCfg(String name, CacheMode cacheMode,
+            CacheAtomicityMode atomicityMode, int backups, Class<?>... indexedTypes) {
 
         // return cache configuration
         return cacheCfg(name, cacheMode, atomicityMode, writeSyncMode(), backups, indexedTypes);
     }
 
-    public static <K, V> CacheConfiguration<K, V> cacheCfg(String name, CacheMode cacheMode, CacheAtomicityMode atomicityMode,
-            CacheWriteSynchronizationMode writeSync, int backups, Class<?>... indexedTypes) {
+    public static <K, V> CacheConfiguration<K, V> cacheCfg(String name, CacheMode cacheMode,
+            CacheAtomicityMode atomicityMode, CacheWriteSynchronizationMode writeSync, int backups,
+            Class<?>... indexedTypes) {
 
         // return cache configuration
         return cacheCfg(name, null, cacheMode, atomicityMode, writeSync, backups, indexedTypes);
     }
 
-    public static CollectionConfiguration collectionCfg(boolean collocated, CacheAtomicityMode atomicityMode, CacheMode cacheMode, int backups,
-            long offHeapMaxMemory) {
+    public static CollectionConfiguration collectionCfg(boolean collocated, CacheAtomicityMode atomicityMode,
+            CacheMode cacheMode, int backups, long offHeapMaxMemory) {
 
         // new collection configuration
         CollectionConfiguration cfg = new CollectionConfiguration();
@@ -123,8 +129,8 @@ public class CacheUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static <K, V> ExpiringMap<K, V> expiringMap(long duration, TimeUnit unit, ExpirationPolicy policy, ExpirationListener<K, V> listener,
-            boolean variableExpiration, int maxSize) {
+    public static <K, V> ExpiringMap<K, V> expiringMap(long duration, TimeUnit unit, ExpirationPolicy policy,
+            ExpirationListener<K, V> listener, boolean variableExpiration, int maxSize) {
 
         // get expiring map builder
         Builder<K, V> builder = (Builder<K, V>) ExpiringMap.builder();
@@ -331,8 +337,9 @@ public class CacheUtil {
         return types;
     }
 
-    private static <K, V> CacheConfiguration<K, V> cacheCfg(String name, String dataRegionName, CacheMode cacheMode, CacheAtomicityMode atomicityMode,
-            CacheWriteSynchronizationMode writeSync, int backups, Class<?>... indexedTypes) {
+    private static <K, V> CacheConfiguration<K, V> cacheCfg(String name, String dataRegionName, CacheMode cacheMode,
+            CacheAtomicityMode atomicityMode, CacheWriteSynchronizationMode writeSync, int backups,
+            Class<?>... indexedTypes) {
 
         // new cache configuration
         CacheConfiguration<K, V> cfg = new CacheConfiguration<>();

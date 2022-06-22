@@ -1,7 +1,6 @@
 
 package io.stuart.context;
 
-import io.stuart.bootstrap.StuartVerticleFactory;
 import io.stuart.config.Config;
 import io.stuart.consts.ParamConst;
 import io.stuart.services.auth.AuthService;

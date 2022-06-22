@@ -1,16 +1,23 @@
+
 package io.stuart.verticles.mqtt;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.stuart.config.Config;
 import io.stuart.consts.SysConst;
+import io.stuart.context.ApplicationContext;
 import io.stuart.log.Logger;
+import io.vertx.core.net.PemKeyCertOptions;
 import io.vertx.mqtt.MqttServerOptions;
 
-public class ClsWsMqttVerticle extends ClsMqttVerticle {
+public class ClsWspMqttVerticle extends ClsMqttVerticle {
 
     // initialize connection count
     private static final AtomicInteger wsConnCount = new AtomicInteger(0);
+
+    public ClsWspMqttVerticle(ApplicationContext context) {
+        // TODO Auto-generated constructor stub
+    }
 
     @Override
     public MqttServerOptions initOptions() {
@@ -33,8 +40,14 @@ public class ClsWsMqttVerticle extends ClsMqttVerticle {
         options.setPort(Config.getWsPort());
         options.setMaxMessageSize(Config.getMqttMessageMaxSize());
         options.setTimeoutOnConnect(Config.getMqttClientConnectTimeoutS());
-//        options.setOverWebsocket(true);
-//        options.setWebsocketPath(Config.getWsPath());
+        options.setUseWebSocket(true);
+
+        if (Config.isMqttSslEnable()) {
+            protocol = SysConst.MQTT + SysConst.COLON + SysConst.SSL_WEBSOCKET_PROTOCOL;
+            options.setKeyCertOptions(new PemKeyCertOptions().setKeyPath(Config.getMqttSslKeyPath())
+                .setCertPath(Config.getMqttSslCertPath()));
+            options.setSsl(true);
+        }
 
         // return mqtt server options
         return options;

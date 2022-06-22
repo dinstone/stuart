@@ -20,6 +20,7 @@ import java.util.Timer;
 
 import io.stuart.config.Config;
 import io.stuart.context.ApplicationContext;
+import io.stuart.context.StuartVerticleFactory;
 import io.stuart.entities.internal.MqttMessageTuple;
 import io.stuart.entities.internal.codec.MqttMessageTupleCodec;
 import io.stuart.exceptions.StartException;

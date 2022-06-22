@@ -142,8 +142,10 @@ public abstract class StdMqttVerticle extends AbstractMqttVerticle {
                         // get matched client and topic routes
                         List<MqttRoute> routes = cacheService.getRoutes(topicName, message.qosLevel().value());
 
+                        // convert to mqtt message
+                        MqttMessage mqttMessage = MsgUtil.convert2MqttMessage(message);
                         // publish message to client
-                        handleLocalPublishMessage(routes, message);
+                        handleLocalPublishMessage(routes, mqttMessage);
                     }
 
                     // complete execute blocking code

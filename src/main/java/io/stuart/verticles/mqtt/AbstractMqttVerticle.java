@@ -630,20 +630,6 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle {
         });
     }
 
-    public void handleLocalPublishMessage(List<MqttRoute> routes, MqttPublishMessage message) {
-        if (routes == null || routes.isEmpty() || message == null) {
-            return;
-        }
-
-        // convert to mqtt message
-        MqttMessage mqttMessage = MsgUtil.convert2MqttMessage(message);
-
-        // loop routes
-        routes.forEach(route -> {
-            handleLocalPublishMessage(route, mqttMessage);
-        });
-    }
-
     public void handleLocalPublishMessage(List<MqttRoute> routes, MqttMessage message) {
         if (routes == null || routes.isEmpty() || message == null) {
             return;
