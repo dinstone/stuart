@@ -16,13 +16,10 @@
 
 package io.stuart.bootstrap;
 
-import java.util.Timer;
-
 import io.stuart.config.Config;
 import io.stuart.context.ApplicationContext;
 import io.stuart.context.StuartVerticleFactory;
 import io.stuart.log.Logger;
-import io.stuart.tasks.SysRuntimeInfoTask;
 import io.stuart.utils.VertxUtil;
 import io.stuart.verticles.admin.WebAdminVerticle;
 import io.stuart.verticles.mqtt.StdTcpMqttVerticle;
@@ -36,7 +33,7 @@ public class StandaloneModeBootstrap implements ApplicationBootstrap {
 
     private Vertx vertx;
 
-    private Timer timer = new Timer(true);
+    // private Timer timer = new Timer(true);
 
     private ApplicationContext applicationContext;
 
@@ -78,7 +75,7 @@ public class StandaloneModeBootstrap implements ApplicationBootstrap {
             }
         });
 
-        // deploy the standalone tcp mqtt verticle
+        // deploy the standalone wsp mqtt verticle
         vertx.deployVerticle(StuartVerticleFactory.verticleName(StdWspMqttVerticle.class), deploymentOptions, ar -> {
             if (ar.succeeded()) {
                 Logger.log().info("Stuart's MQTT WSP protocol verticle(s) deploy succeeded, listen at port {}.",
@@ -89,9 +86,13 @@ public class StandaloneModeBootstrap implements ApplicationBootstrap {
             }
         });
 
+        vertx.setPeriodic(Config.getInstanceMetricsPeriodMs(), v -> {
+            applicationContext.getCacheService().updateNodeSysRuntimeInfo();
+        });
+
         // set scheduled task
-        timer.schedule(new SysRuntimeInfoTask(applicationContext.getCacheService()), 0,
-            Config.getInstanceMetricsPeriodMs());
+        // timer.schedule(new SysRuntimeInfoTask(applicationContext.getCacheService()), 0,
+        // Config.getInstanceMetricsPeriodMs());
     }
 
     @Override

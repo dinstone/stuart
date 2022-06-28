@@ -45,7 +45,7 @@ import io.vertx.mqtt.MqttServer;
 import io.vertx.mqtt.MqttServerOptions;
 import io.vertx.mqtt.messages.MqttPublishMessage;
 
-public abstract class ClsMqttVerticle extends AbstractMqttVerticle {
+public abstract class ClusterMqttVerticle extends AbstractMqttVerticle {
 
     private static volatile MessageConsumer<MqttMessageTuple> consumer;
 
@@ -290,7 +290,7 @@ public abstract class ClsMqttVerticle extends AbstractMqttVerticle {
 
     private boolean initConsumer() {
         if (consumer == null) {
-            synchronized (ClsMqttVerticle.class) {
+            synchronized (ClusterMqttVerticle.class) {
                 if (consumer == null) {
                     // initialize mqtt message tuple consumer
                     consumer = eventBus.consumer(EventConst.CLS_PUBLISH_TOPIC_PREFIX + thisNodeId.toString());

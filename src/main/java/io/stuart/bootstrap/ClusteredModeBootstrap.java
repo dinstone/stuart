@@ -16,8 +16,6 @@
 
 package io.stuart.bootstrap;
 
-import java.util.Timer;
-
 import io.stuart.config.Config;
 import io.stuart.context.ApplicationContext;
 import io.stuart.context.StuartVerticleFactory;
@@ -25,15 +23,11 @@ import io.stuart.entities.internal.MqttMessageTuple;
 import io.stuart.entities.internal.codec.MqttMessageTupleCodec;
 import io.stuart.exceptions.StartException;
 import io.stuart.log.Logger;
-import io.stuart.services.auth.AuthService;
 import io.stuart.services.cache.CacheService;
-import io.stuart.services.metrics.MetricsService;
-import io.stuart.services.session.SessionService;
-import io.stuart.tasks.SysRuntimeInfoTask;
 import io.stuart.utils.VertxUtil;
 import io.stuart.verticles.admin.WebAdminVerticle;
-import io.stuart.verticles.mqtt.ClsSslMqttVerticle;
 import io.stuart.verticles.mqtt.ClsTcpMqttVerticle;
+import io.stuart.verticles.mqtt.ClsWspMqttVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
@@ -44,13 +38,7 @@ public class ClusteredModeBootstrap implements ApplicationBootstrap {
 
     private Vertx vertx;
 
-    private SessionService sessionService;
-
-    private AuthService authService;
-
-    private MetricsService metricsService;
-
-    private Timer timer = new Timer();
+    // private Timer timer = new Timer();
 
     private ApplicationContext applicationContext;
 
@@ -86,30 +74,27 @@ public class ClusteredModeBootstrap implements ApplicationBootstrap {
                 vertx.deployVerticle(StuartVerticleFactory.verticleName(ClsTcpMqttVerticle.class), deploymentOptions,
                     ar -> {
                         if (ar.succeeded()) {
-                            Logger.log().info("Stuart's MQTT protocol verticle(s) deploy succeeded, listen at port {}.",
+                            Logger.log().info(
+                                "Stuart's MQTT TCP protocol verticle(s) deploy succeeded, listen at port {}.",
                                 Config.getMqttPort());
                         } else {
-                            Logger.log().error("Stuart's MQTT protocol verticle(s) deploy failed, excpetion: {}.",
+                            Logger.log().error("Stuart's MQTT TCP protocol verticle(s) deploy failed, excpetion: {}.",
                                 ar.cause().getMessage());
                         }
                     });
 
-                // if enable mqtt ssl protocol
-                if (Config.isMqttSslEnable()) {
-                    // deploy the clustered ssl mqtt verticle
-                    vertx.deployVerticle(StuartVerticleFactory.verticleName(ClsSslMqttVerticle.class),
-                        deploymentOptions, ar -> {
-                            if (ar.succeeded()) {
-                                Logger.log().info(
-                                    "Stuart's MQTT SSL protocol verticle(s) deploy succeeded, listen at port {}.",
-                                    Config.getMqttSslPort());
-                            } else {
-                                Logger.log().error(
-                                    "Stuart's MQTT SSL protocol verticle(s) deploy failed, excpetion: {}.",
-                                    ar.cause().getMessage());
-                            }
-                        });
-                }
+                // deploy the clustered wsp mqtt verticle
+                vertx.deployVerticle(StuartVerticleFactory.verticleName(ClsWspMqttVerticle.class), deploymentOptions,
+                    ar -> {
+                        if (ar.succeeded()) {
+                            Logger.log().info(
+                                "Stuart's MQTT WSP protocol verticle(s) deploy succeeded, listen at port {}.",
+                                Config.getWsPort());
+                        } else {
+                            Logger.log().error("Stuart's MQTT WSP protocol verticle(s) deploy failed, excpetion: {}.",
+                                ar.cause().getMessage());
+                        }
+                    });
 
                 // deploy the web verticle
                 vertx.deployVerticle(StuartVerticleFactory.verticleName(WebAdminVerticle.class), ar -> {
@@ -122,8 +107,12 @@ public class ClusteredModeBootstrap implements ApplicationBootstrap {
                     }
                 });
 
+                vertx.setPeriodic(Config.getInstanceMetricsPeriodMs(), v -> {
+                    cacheService.updateNodeSysRuntimeInfo();
+                });
+
                 // set scheduled task
-                timer.schedule(new SysRuntimeInfoTask(cacheService), 0, Config.getInstanceMetricsPeriodMs());
+                // timer.schedule(new SysRuntimeInfoTask(cacheService), 0, Config.getInstanceMetricsPeriodMs());
             } else {
                 Logger.log().error("Stuart's clustered vert.x instance start failed, exception: {}.", result.cause());
 

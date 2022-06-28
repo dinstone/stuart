@@ -25,7 +25,7 @@ import io.stuart.log.Logger;
 import io.vertx.core.net.PemKeyCertOptions;
 import io.vertx.mqtt.MqttServerOptions;
 
-public class ClsTcpMqttVerticle extends ClsMqttVerticle {
+public class ClsTcpMqttVerticle extends ClusterMqttVerticle {
 
     // initialize connection count
     private static final AtomicInteger tcpConnCount = new AtomicInteger(0);

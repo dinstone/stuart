@@ -42,7 +42,7 @@ import io.vertx.mqtt.MqttServer;
 import io.vertx.mqtt.MqttServerOptions;
 import io.vertx.mqtt.messages.MqttPublishMessage;
 
-public abstract class StdMqttVerticle extends AbstractMqttVerticle {
+public abstract class StandaloneMqttVerticle extends AbstractMqttVerticle {
 
     @Override
     public void start() throws Exception {
