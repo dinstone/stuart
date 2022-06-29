@@ -52,7 +52,7 @@ public class StandaloneModeBootstrap implements ApplicationBootstrap {
 
         // deploy the web verticle
         vertx.deployVerticle(StuartVerticleFactory.verticleName(WebAdminVerticle.class),
-            new DeploymentOptions().setInstances(2), ar -> {
+            new DeploymentOptions().setInstances(4), ar -> {
                 if (ar.succeeded()) {
                     Logger.log().info("Stuart's web admin verticle(s) deploy succeeded, listen at port {}.",
                         Config.getHttpPort());

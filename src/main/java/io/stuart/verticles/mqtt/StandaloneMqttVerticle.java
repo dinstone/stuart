@@ -67,7 +67,7 @@ public abstract class StandaloneMqttVerticle extends AbstractMqttVerticle {
         // save mqtt listener
         saveListener();
 
-        Logger.log().info("Stuart's standalone mqtt verticle prepared");
+        // Logger.log().info("Stuart's standalone mqtt verticle prepared");
         server.endpointHandler(endpoint -> {
             handleEndpoint(endpoint);
         }).listen(ar -> {

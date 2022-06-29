@@ -70,7 +70,6 @@ import io.vertx.ext.web.handler.AuthenticationHandler;
 import io.vertx.ext.web.handler.BasicAuthHandler;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.LoggerHandler;
-import io.vertx.ext.web.handler.RedirectAuthHandler;
 import io.vertx.ext.web.handler.ResponseTimeHandler;
 import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
@@ -113,171 +112,104 @@ public class WebAdminVerticle extends AbstractVerticle {
 
         // router
         Router router = Router.router(vertx);
+        router.errorHandler(401, rc -> {
+            rc.response().setStatusCode(401).sendFile("webroot/401.html");
+        });
         router.errorHandler(404, rc -> {
             rc.response().setStatusCode(404).sendFile("webroot/404.html");
         });
 
         router.route().handler(LoggerHandler.create()).handler(ResponseTimeHandler.create());
-        router.route().handler(BodyHandler.create());
+        // router.route().handler(BodyHandler.create());
 
         // set session handler
-        router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx, sessionMapName))
-            .setSessionTimeout(Config.getVertxHttpSessionTimeoutMs()));
+        SessionHandler sessionHandler = SessionHandler.create(LocalSessionStore.create(vertx, sessionMapName, 60000))
+            .setSessionTimeout(Config.getVertxHttpSessionTimeoutMs()).setNagHttps(false);
+        // router.route().handler(sessionHandler);
 
         // redirect authentication handler
-        AuthenticationHandler redirectAuthHandler = RedirectAuthHandler.create(authProvider, "/login.html");
+        AuthenticationHandler redirectAuthHandler = CheckAuthenHandler.create();
         // basic authentication handler
         AuthenticationHandler basicAuthHandler = BasicAuthHandler.create(authProvider);
 
         // set body handler
         // set system url use redirect authentication handler
-        router.route("/ui/*").handler(redirectAuthHandler);
+        router.route("/ui/*").handler(sessionHandler).handler(redirectAuthHandler);
         // set manage url use redirect authentication handler
-        router.route("/sys/*").handler(redirectAuthHandler);
+        router.route("/sys/*").handler(sessionHandler).handler(redirectAuthHandler);
         // set api url use basic authentication handler
         router.route("/api/*").handler(basicAuthHandler);
 
-        Route login = mkRoute(router, HttpMethod.POST, "/login", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        login.handler(rc -> {
-            login(rc);
-        });
+        // mkRoute(router, HttpMethod.POST, "/login", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+        // .handler(sessionHandler).handler(this::login);
+        router.post("/login").handler(sessionHandler).handler(BodyHandler.create()).handler(this::login);
+        router.route("/logout").handler(sessionHandler).handler(this::logout);
 
-        router.route("/logout").handler(rc -> {
-            logout(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/index/init", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::initIndex);
 
-        Route indexInit = mkRoute(router, HttpMethod.POST, "/sys/index/init", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        indexInit.handler(rc -> {
-            initIndex(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/console/info", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::getSystemInfo);
 
-        Route consoleInfo = mkRoute(router, HttpMethod.POST, "/sys/console/info", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        consoleInfo.handler(rc -> {
-            getSystemInfo(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/console/nodes", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::getNodeMetrics);
 
-        Route consoleNodes = mkRoute(router, HttpMethod.POST, "/sys/console/nodes", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        consoleNodes.handler(rc -> {
-            getNodeMetrics(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/console/mqtt", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::getMqttMetrics);
 
-        Route consoleMqtt = mkRoute(router, HttpMethod.POST, "/sys/console/mqtt", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        consoleMqtt.handler(rc -> {
-            getMqttMetrics(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/connect/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::getConnections);
 
-        Route connGet = mkRoute(router, HttpMethod.POST, "/sys/connect/get", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        connGet.handler(rc -> {
-            getConnections(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/session/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::getSessions);
 
-        Route sessionGet = mkRoute(router, HttpMethod.POST, "/sys/session/get", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        sessionGet.handler(rc -> {
-            getSessions(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/topic/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::getTopics);
 
-        Route topicGet = mkRoute(router, HttpMethod.POST, "/sys/topic/get", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        topicGet.handler(rc -> {
-            getTopics(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/sub/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::getSubscribes);
 
-        Route subscribeGet = mkRoute(router, HttpMethod.POST, "/sys/sub/get", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        subscribeGet.handler(rc -> {
-            getSubscribes(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/user/add", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::addUser);
 
-        Route userAdd = mkRoute(router, HttpMethod.POST, "/sys/user/add", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        userAdd.handler(rc -> {
-            addUser(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/user/delete", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::deleteUser);
 
-        Route userDel = mkRoute(router, HttpMethod.POST, "/sys/user/delete", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        userDel.handler(rc -> {
-            deleteUser(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/user/update", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::updateUser);
 
-        Route userUpdate = mkRoute(router, HttpMethod.POST, "/sys/user/update", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        userUpdate.handler(rc -> {
-            updateUser(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/user/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::getUsers);
 
-        Route userGet = mkRoute(router, HttpMethod.POST, "/sys/user/get", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        userGet.handler(rc -> {
-            getUsers(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/acl/add", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::addAcl);
 
-        Route aclAdd = mkRoute(router, HttpMethod.POST, "/sys/acl/add", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        aclAdd.handler(rc -> {
-            addAcl(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/acl/delete", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::deleteAcl);
 
-        Route aclDel = mkRoute(router, HttpMethod.POST, "/sys/acl/delete", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        aclDel.handler(rc -> {
-            deleteAcl(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/acl/update", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::updateAcl);
 
-        Route aclUpdate = mkRoute(router, HttpMethod.POST, "/sys/acl/update", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        aclUpdate.handler(rc -> {
-            updateAcl(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/acl/reorder", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::reorderAcls);
 
-        Route aclReorder = mkRoute(router, HttpMethod.POST, "/sys/acl/reorder", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        aclReorder.handler(rc -> {
-            reorderAcls(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/acl/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::getAcls);
 
-        Route aclGet = mkRoute(router, HttpMethod.POST, "/sys/acl/get", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        aclGet.handler(rc -> {
-            getAcls(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/listener/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::getListeners);
 
-        Route listenerGet = mkRoute(router, HttpMethod.POST, "/sys/listener/get", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        listenerGet.handler(rc -> {
-            getListeners(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/admin/add", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::addAdmin);
 
-        Route adminAdd = mkRoute(router, HttpMethod.POST, "/sys/admin/add", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        adminAdd.handler(rc -> {
-            addAdmin(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/admin/delete", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::deleteAdmin);
 
-        Route adminDel = mkRoute(router, HttpMethod.POST, "/sys/admin/delete", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        adminDel.handler(rc -> {
-            deleteAdmin(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/admin/update", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::updateAdmin);
 
-        Route adminUpdate = mkRoute(router, HttpMethod.POST, "/sys/admin/update", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        adminUpdate.handler(rc -> {
-            updateAdmin(rc);
-        });
-
-        Route adminGet = mkRoute(router, HttpMethod.POST, "/sys/admin/get", HttpConst.APPLICATION_JSON,
-            HttpConst.APPLICATION_JSON);
-        adminGet.handler(rc -> {
-            getAdmins(rc);
-        });
+        mkRoute(router, HttpMethod.POST, "/sys/admin/get", HttpConst.APPLICATION_JSON, HttpConst.APPLICATION_JSON)
+            .handler(this::getAdmins);
 
         // set static handler
         router.route().handler(StaticHandler.create().setCachingEnabled(true).setIndexPage("/login.html"));
@@ -1313,9 +1245,9 @@ public class WebAdminVerticle extends AbstractVerticle {
         route.consumes(consumes);
         route.produces(produces);
 
-        // if (hasBody(method)) {
-        // route.handler(BodyHandler.create());
-        // }
+        if (hasBody(method)) {
+            route.handler(BodyHandler.create());
+        }
 
         return route;
     }
