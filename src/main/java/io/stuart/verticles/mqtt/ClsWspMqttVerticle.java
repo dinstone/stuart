@@ -10,7 +10,7 @@ import io.stuart.log.Logger;
 import io.vertx.core.net.PemKeyCertOptions;
 import io.vertx.mqtt.MqttServerOptions;
 
-public class ClsWspMqttVerticle extends ClusterMqttVerticle {
+public class ClsWspMqttVerticle extends ClusteredMqttVerticle {
 
     // initialize connection count
     private static final AtomicInteger wsConnCount = new AtomicInteger(0);

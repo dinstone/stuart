@@ -89,7 +89,7 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle {
     public void handleEndpoint(MqttEndpoint endpoint) {
         if (limited()) {
             // reached the maximum number of connections
-            handleReject(endpoint, MqttConnectReturnCode.CONNECTION_REFUSED_SERVER_UNAVAILABLE);
+            handleReject(endpoint, MqttConnectReturnCode.CONNECTION_REFUSED_USE_ANOTHER_SERVER);
 
             // end the handler
             return;
@@ -659,7 +659,7 @@ public abstract class AbstractMqttVerticle extends AbstractVerticle {
             if (matchedWrapper != null) {
                 // publish qos2 message to client
                 matchedWrapper.publishMessage(message, matchedQos);
-            } else if (matchedWrapper == null && cacheService.isPersistentSession(matchedClientId)) {
+            } else if (cacheService.isPersistentSession(matchedClientId)) {
                 // enqueue - persistent session
                 cacheService.enqueue(message, matchedClientId, matchedQos);
 

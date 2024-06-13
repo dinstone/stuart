@@ -20,16 +20,16 @@ import io.stuart.bootstrap.ApplicationBootstrap;
 
 public class ShutdownHook extends Thread {
 
-    private ApplicationBootstrap verticleService;
+    private final ApplicationBootstrap applicationBootstrap;
 
-    public ShutdownHook(ApplicationBootstrap verticleService) {
-        this.verticleService = verticleService;
+    public ShutdownHook(ApplicationBootstrap bootstrap) {
+        this.applicationBootstrap = bootstrap;
     }
 
     @Override
     public void run() {
-        if (verticleService != null) {
-            verticleService.stop();
+        if (applicationBootstrap != null) {
+            applicationBootstrap.stop();
         }
     }
 

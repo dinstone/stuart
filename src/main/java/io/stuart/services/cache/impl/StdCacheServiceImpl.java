@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.ignite.Ignition;
+import org.apache.ignite.cluster.ClusterState;
 import org.apache.ignite.lang.IgniteCallable;
 import org.apache.ignite.lang.IgniteClosure;
 
@@ -79,7 +80,7 @@ public class StdCacheServiceImpl extends AbstractCacheService {
             // start ignite
             ignite = Ignition.start(StdUtil.igniteCfg());
             // active ignite for persistent storage
-            ignite.cluster().active(true);
+            ignite.cluster().state(ClusterState.ACTIVE);
             // set baseline topology
             StdUtil.setBaselineTopology(ignite);
 

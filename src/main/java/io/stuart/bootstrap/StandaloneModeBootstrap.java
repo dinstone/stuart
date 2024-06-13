@@ -70,7 +70,7 @@ public class StandaloneModeBootstrap implements ApplicationBootstrap {
                 Logger.log().info("Stuart's MQTT TCP protocol verticle(s) deploy succeeded, listen at port {}.",
                     Config.getMqttPort());
             } else {
-                Logger.log().error("Stuart's MQTT TCP protocol verticle(s) deploy failed, excpetion: {}.",
+                Logger.log().error("Stuart's MQTT TCP protocol verticle(s) deploy failed, exception: {}.",
                     ar.cause().getMessage());
             }
         });
@@ -81,7 +81,7 @@ public class StandaloneModeBootstrap implements ApplicationBootstrap {
                 Logger.log().info("Stuart's MQTT WSP protocol verticle(s) deploy succeeded, listen at port {}.",
                     Config.getWsPort());
             } else {
-                Logger.log().error("Stuart's MQTT WSP protocol verticle(s) deploy failed, excpetion: {}.",
+                Logger.log().error("Stuart's MQTT WSP protocol verticle(s) deploy failed, exception: {}.",
                     ar.cause().getMessage());
             }
         });

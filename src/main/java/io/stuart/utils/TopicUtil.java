@@ -60,7 +60,7 @@ public class TopicUtil {
     }
 
     public static boolean validateTopic(String topic) {
-        if (topic == null || topic.length() == 0) {
+        if (topic == null || topic.isEmpty()) {
             return false;
         }
 
